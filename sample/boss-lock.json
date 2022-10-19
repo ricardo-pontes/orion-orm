@@ -1,0 +1,22 @@
+{
+	"hash": "d41d8cd98f00b204e9800998ecf8427e",
+	"updated": "2022-10-17T21:41:06.978315-03:00",
+	"installedModules": {
+		"github.com/ricardo-pontes/orion-bindings": {
+			"name": "orion-bindings",
+			"version": "1.1.0",
+			"hash": "3c627bcf9d0083fbdc860ed52909dd63",
+			"artifacts": {},
+			"failed": false,
+			"changed": false
+		},
+		"https://github.com/ricardo-pontes/orion-bindings-visualframework-fmx-native": {
+			"name": "orion-bindings-visualframework-fmx-native",
+			"version": "1.0.0",
+			"hash": "8dee7aa7a37775d17196ef497604434c",
+			"artifacts": {},
+			"failed": false,
+			"changed": false
+		}
+	}
+}

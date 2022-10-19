@@ -1,0 +1,304 @@
+object Form1: TForm1
+  Left = 0
+  Top = 0
+  Caption = 'Form1'
+  ClientHeight = 600
+  ClientWidth = 1200
+  FormFactor.Width = 320
+  FormFactor.Height = 480
+  FormFactor.Devices = [Desktop]
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
+  DesignerMasterStyle = 0
+  object Button1: TButton
+    Position.X = 116.000000000000000000
+    Position.Y = 8.000000000000000000
+    TabOrder = 0
+    Text = 'FindOne'
+    OnClick = Button1Click
+  end
+  object Button2: TButton
+    Position.X = 204.000000000000000000
+    Position.Y = 8.000000000000000000
+    TabOrder = 2
+    Text = 'FindMany'
+    OnClick = Button2Click
+  end
+  object Edit1: TEdit
+    Touch.InteractiveGestures = [LongTap, DoubleTap]
+    TabOrder = 3
+    Position.X = 8.000000000000000000
+    Position.Y = 8.000000000000000000
+  end
+  object Button3: TButton
+    Position.X = 292.000000000000000000
+    Position.Y = 8.000000000000000000
+    TabOrder = 4
+    Text = 'Save'
+    OnClick = Button3Click
+  end
+  object Button5: TButton
+    Position.X = 380.000000000000000000
+    Position.Y = 8.000000000000000000
+    TabOrder = 6
+    Text = 'Delete'
+    OnClick = Button5Click
+  end
+  object TabControl1: TTabControl
+    Anchors = [akLeft, akTop, akBottom]
+    Position.X = 8.000000000000000000
+    Position.Y = 38.000000000000000000
+    Size.Width = 638.000000000000000000
+    Size.Height = 554.000000000000000000
+    Size.PlatformDefault = False
+    TabIndex = 0
+    TabOrder = 7
+    TabPosition = PlatformDefault
+    Sizes = (
+      638s
+      528s)
+    object TabItem2: TTabItem
+      CustomIcon = <
+        item
+        end>
+      IsSelected = True
+      Size.Width = 69.000000000000000000
+      Size.Height = 26.000000000000000000
+      Size.PlatformDefault = False
+      StyleLookup = ''
+      TabOrder = 0
+      Text = 'TabItem2'
+      ExplicitSize.cx = 69.000000000000000000
+      ExplicitSize.cy = 26.000000000000000000
+      object EditID: TEdit
+        Touch.InteractiveGestures = [LongTap, DoubleTap]
+        TabOrder = 5
+        Position.X = 16.000000000000000000
+        Position.Y = 54.000000000000000000
+        object Label1: TLabel
+          Align = Top
+          Margins.Top = -20.000000000000000000
+          Position.Y = -20.000000000000000000
+          Size.Width = 100.000000000000000000
+          Size.Height = 17.000000000000000000
+          Size.PlatformDefault = False
+          Text = 'ID'
+          TabOrder = 0
+        end
+      end
+      object EditDescricao: TEdit
+        Touch.InteractiveGestures = [LongTap, DoubleTap]
+        TabOrder = 1
+        Position.X = 124.000000000000000000
+        Position.Y = 54.000000000000000000
+        Size.Width = 208.000000000000000000
+        Size.Height = 22.000000000000000000
+        Size.PlatformDefault = False
+        object Label2: TLabel
+          Align = Top
+          Margins.Top = -20.000000000000000000
+          Position.Y = -20.000000000000000000
+          Size.Width = 208.000000000000000000
+          Size.Height = 17.000000000000000000
+          Size.PlatformDefault = False
+          Text = 'Descri'#231#227'o'
+          TabOrder = 0
+        end
+      end
+      object EditDescricaoDetalhada: TEdit
+        Touch.InteractiveGestures = [LongTap, DoubleTap]
+        TabOrder = 0
+        Position.X = 340.000000000000000000
+        Position.Y = 54.000000000000000000
+        Size.Width = 285.000000000000000000
+        Size.Height = 22.000000000000000000
+        Size.PlatformDefault = False
+        object Label3: TLabel
+          Align = Top
+          Margins.Top = -20.000000000000000000
+          Position.Y = -20.000000000000000000
+          Size.Width = 285.000000000000000000
+          Size.Height = 17.000000000000000000
+          Size.PlatformDefault = False
+          Text = 'Descri'#231#227'o Detalhada'
+          TabOrder = 0
+        end
+      end
+      object EditEmbalagem: TEdit
+        Touch.InteractiveGestures = [LongTap, DoubleTap]
+        TabOrder = 4
+        Position.X = 16.000000000000000000
+        Position.Y = 102.000000000000000000
+        object Label4: TLabel
+          Align = Top
+          Margins.Top = -20.000000000000000000
+          Position.Y = -20.000000000000000000
+          Size.Width = 100.000000000000000000
+          Size.Height = 17.000000000000000000
+          Size.PlatformDefault = False
+          Text = 'Embalagem'
+          TabOrder = 0
+        end
+      end
+      object EditPrecoCusto: TEdit
+        Touch.InteractiveGestures = [LongTap, DoubleTap]
+        TabOrder = 3
+        Position.X = 124.000000000000000000
+        Position.Y = 102.000000000000000000
+        object Label5: TLabel
+          Align = Top
+          Margins.Top = -20.000000000000000000
+          Position.Y = -20.000000000000000000
+          Size.Width = 100.000000000000000000
+          Size.Height = 17.000000000000000000
+          Size.PlatformDefault = False
+          Text = 'Pre'#231'o de Custo'
+          TabOrder = 0
+        end
+      end
+      object EditPrecoVenda: TEdit
+        Touch.InteractiveGestures = [LongTap, DoubleTap]
+        TabOrder = 2
+        Position.X = 232.000000000000000000
+        Position.Y = 102.000000000000000000
+        object Label6: TLabel
+          Align = Top
+          Margins.Top = -20.000000000000000000
+          Position.Y = -20.000000000000000000
+          Size.Width = 100.000000000000000000
+          Size.Height = 17.000000000000000000
+          Size.PlatformDefault = False
+          Text = 'Pre'#231'o de Venda'
+          TabOrder = 0
+        end
+      end
+      object GroupBox1: TGroupBox
+        Padding.Left = 10.000000000000000000
+        Padding.Top = 30.000000000000000000
+        Padding.Right = 10.000000000000000000
+        Padding.Bottom = 10.000000000000000000
+        Position.X = 16.000000000000000000
+        Position.Y = 192.000000000000000000
+        Size.Width = 609.000000000000000000
+        Size.Height = 321.000000000000000000
+        Size.PlatformDefault = False
+        Text = 'GroupBox1'
+        TabOrder = 6
+        object ListView1: TListView
+          ItemAppearanceClassName = 'TDynamicAppearance'
+          ItemEditAppearanceClassName = 'TDynamicAppearance'
+          HeaderAppearanceClassName = 'TListHeaderObjects'
+          FooterAppearanceClassName = 'TListHeaderObjects'
+          Align = Client
+          Size.Width = 589.000000000000000000
+          Size.Height = 231.000000000000000000
+          Size.PlatformDefault = False
+          TabOrder = 6
+          ItemAppearanceObjects.ItemObjects.ObjectsCollection = <
+            item
+              AppearanceObjectName = 'ID'
+              AppearanceClassName = 'TTextObjectAppearance'
+              Appearance.Width = 31.000000000000000000
+              Appearance.Height = 44.000000000000000000
+            end
+            item
+              AppearanceObjectName = 'Descricao'
+              AppearanceClassName = 'TTextObjectAppearance'
+              Appearance.Width = 263.000000000000000000
+              Appearance.Height = 44.000000000000000000
+              Appearance.PlaceOffset.X = 40.000000000000000000
+            end
+            item
+              AppearanceObjectName = 'Embalagem'
+              AppearanceClassName = 'TTextObjectAppearance'
+              Appearance.Width = 79.000000000000000000
+              Appearance.Height = 44.000000000000000000
+              Appearance.PlaceOffset.X = 312.000000000000000000
+            end
+            item
+              AppearanceObjectName = 'Quantidade'
+              AppearanceClassName = 'TTextObjectAppearance'
+              Appearance.Width = 79.000000000000000000
+              Appearance.Height = 44.000000000000000000
+              Appearance.PlaceOffset.X = 400.000000000000000000
+            end
+            item
+              AppearanceObjectName = 'Deletar'
+              AppearanceClassName = 'TTextButtonObjectAppearance'
+              Appearance.Width = 66.000000000000000000
+              Appearance.Height = 30.000000000000000000
+              Appearance.Align = Trailing
+              Appearance.VertAlign = Center
+              Appearance.PlaceOffset.X = -3.000000000000000000
+              Appearance.Text = 'Deletar'
+            end>
+          ItemAppearanceObjects.ItemEditObjects.ObjectsCollection = <
+            item
+              AppearanceObjectName = 'Text1'
+              AppearanceClassName = 'TTextObjectAppearance'
+            end>
+          OnItemClickEx = ListView1ItemClickEx
+        end
+        object Layout1: TLayout
+          Align = Top
+          Position.X = 10.000000000000000000
+          Position.Y = 30.000000000000000000
+          Size.Width = 589.000000000000000000
+          Size.Height = 50.000000000000000000
+          Size.PlatformDefault = False
+          TabOrder = 38
+          object Edit2: TEdit
+            Touch.InteractiveGestures = [LongTap, DoubleTap]
+            TabOrder = 2
+            Position.X = 48.000000000000000000
+            Position.Y = 20.000000000000000000
+            Size.Width = 225.000000000000000000
+            Size.Height = 22.000000000000000000
+            Size.PlatformDefault = False
+          end
+          object Edit3: TEdit
+            Touch.InteractiveGestures = [LongTap, DoubleTap]
+            TabOrder = 1
+            Position.X = 281.000000000000000000
+            Position.Y = 20.000000000000000000
+            Size.Width = 88.000000000000000000
+            Size.Height = 22.000000000000000000
+            Size.PlatformDefault = False
+          end
+          object Edit4: TEdit
+            Touch.InteractiveGestures = [LongTap, DoubleTap]
+            TabOrder = 0
+            Position.X = 377.000000000000000000
+            Position.Y = 20.000000000000000000
+            Size.Width = 88.000000000000000000
+            Size.Height = 22.000000000000000000
+            Size.PlatformDefault = False
+          end
+          object Button6: TButton
+            Position.X = 512.000000000000000000
+            Position.Y = 20.000000000000000000
+            Size.Width = 63.000000000000000000
+            Size.Height = 22.000000000000000000
+            Size.PlatformDefault = False
+            TabOrder = 3
+            Text = 'Add'
+            OnClick = Button6Click
+          end
+        end
+      end
+    end
+  end
+  object Memo1: TMemo
+    Touch.InteractiveGestures = [Pan, LongTap, DoubleTap]
+    DataDetectorTypes = []
+    Anchors = [akLeft, akTop, akRight, akBottom]
+    Position.X = 652.000000000000000000
+    Position.Y = 64.000000000000000000
+    Size.Width = 540.000000000000000000
+    Size.Height = 528.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 1
+    Viewport.Width = 536.000000000000000000
+    Viewport.Height = 524.000000000000000000
+  end
+end

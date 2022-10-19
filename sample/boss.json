@@ -1,0 +1,12 @@
+{
+	"name": "sample",
+	"description": "",
+	"version": "1.0.0",
+	"homepage": "",
+	"mainsrc": "./src",
+	"projects": [],
+	"dependencies": {
+		"github.com/ricardo-pontes/orion-bindings": "^1.1.0",
+		"https://github.com/ricardo-pontes/orion-bindings-visualframework-fmx-native": "^1.0.0"
+	}
+}
