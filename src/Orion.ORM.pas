@@ -21,7 +21,8 @@ type
 
     procedure Mapper(aValue : TOrionORMMapper);
     procedure Save(aDataObject : T);
-    function FindOne(aID : integer) : T;
+    function FindOne(aID : integer) : T; overload;
+    function FindOne(aFilter : TOrionORMFilter) : T; overload;
     function FindMany(aFilter : TOrionORMFilter) : TObjectList<T>;
     procedure Delete(aID : integer);
   end;
@@ -50,6 +51,11 @@ end;
 function TOrionORM<T>.FindMany(aFilter: TOrionORMFilter): TObjectList<T>;
 begin
   Result := FCore.FindMany(aFilter);
+end;
+
+function TOrionORM<T>.FindOne(aFilter: TOrionORMFilter): T;
+begin
+  Result := FCore.FindOne(aFilter);
 end;
 
 function TOrionORM<T>.FindOne(aID : integer): T;

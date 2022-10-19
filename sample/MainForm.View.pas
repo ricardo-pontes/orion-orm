@@ -65,6 +65,7 @@ type
     Edit3: TEdit;
     Edit4: TEdit;
     Button6: TButton;
+    Button4: TButton;
     procedure FormCreate(Sender: TObject);
     procedure Button1Click(Sender: TObject);
     procedure Button2Click(Sender: TObject);
@@ -74,6 +75,7 @@ type
     procedure Button6Click(Sender: TObject);
     procedure ListView1ItemClickEx(const Sender: TObject; ItemIndex: Integer; const LocalClickPos: TPointF;
       const ItemObject: TListItemDrawable);
+    procedure Button4Click(Sender: TObject);
   private
     FOrionORM : iOrionORM<TProdutoDTO>;
     FOrionBindings : iOrionBindings;
@@ -125,6 +127,19 @@ begin
   FOrionORM.Save(FProduto);
   Memo1.Lines.Add('=====================================');
   Memo1.Lines.Add(FProduto.ToJSONString(True))
+end;
+
+procedure TForm1.Button4Click(Sender: TObject);
+begin
+  if Assigned(FProduto) then
+    FProduto.DisposeOf;
+
+  FProduto := FOrionORM.FindOne(Edit1.Text);
+  if not Assigned(FProduto) then
+    Exit;
+  FOrionBindings.Entity(FProduto);
+  FOrionBindings.BindToView;
+  Memo1.Text := FProduto.ToJSONString(True);
 end;
 
 procedure TForm1.Button5Click(Sender: TObject);

@@ -21,7 +21,8 @@ type
     FChildRttiProperties : TDictionary<TRttiProperty, TOrionORMMapper>;
     FAutoCommit : boolean;
     FOrionCriteria : TOrionORMCriteria<T>;
-    function InternalFindOne(aID : integer; aMapper  : TOrionORMMapper) : T;
+    function InternalFindOne(aID : integer; aMapper  : TOrionORMMapper) : T; overload;
+    function InternalFindOne(aFilter : TOrionORMFilter; aMapper : TOrionORMMapper) : T; overload;
     function InternalFindMany(aFilter : TOrionORMFilter; aMapper  : TOrionORMMapper; aObjectList : TObjectList<TObject> = nil) : TObjectList<TObject>;
     procedure InternalSave(aDataObject: T; aMapper : TOrionORMMapper);
     procedure InternalSaveMany(aObjectList : TObjectList<TObject>; aMapper : TOrionORMMapper; aFKValue : string);
@@ -42,7 +43,8 @@ type
     property DBConnection: iDBConnection read FDBConnection write FDBConnection;
 
     procedure Save(aDataObject : T);
-    function FindOne(aID : integer) : T;
+    function FindOne(aID : integer) : T; overload;
+    function FindOne(aFilter : TOrionORMFilter) : T; overload;
     function FindMany(aFilter : TOrionORMFilter) : TObjectList<T>;
     procedure Delete(aID : integer);
   end;
@@ -237,6 +239,11 @@ begin
   Result := TObjectList<T>(InternalFindMany(aFilter, FMapper));
 end;
 
+function TOrionORMCore<T>.FindOne(aFilter: TOrionORMFilter): T;
+begin
+  Result := InternalFindOne(aFilter, FMapper);
+end;
+
 function TOrionORMCore<T>.FindOne(aID : integer) : T;
 begin
   Result := InternalFindOne(aID, FMapper);
@@ -336,6 +343,31 @@ begin
       end;
     end;
 
+  finally
+    Statement.DisposeOf;
+  end;
+end;
+
+function TOrionORMCore<T>.InternalFindOne(aFilter: TOrionORMFilter; aMapper: TOrionORMMapper): T;
+var
+  Statement : TStringBuilder;
+  Dataset : iDataset;
+begin
+  Result := nil;
+  if not Assigned(FMapper) then
+    raise Exception.Create('No mapper found.');
+
+  Statement := TStringBuilder.Create;
+  Dataset := FDBConnection.NewDataset;
+  try
+    FOrionCriteria.BuildFindStatement(Statement, aFilter, aMapper);
+    ExecuteStatement(Statement, Dataset);
+
+    if Dataset.RecordCount = 0 then
+      Exit;
+
+    Result := T.Create;
+    DatasetToObject(Dataset, Result, aMapper);
   finally
     Statement.DisposeOf;
   end;

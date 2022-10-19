@@ -17,7 +17,8 @@ type
     ['{3ADA655C-AF28-4E2A-9127-A533F80D05E4}']
     procedure Mapper(aValue : TOrionORMMapper);
     procedure Save(aDataObject : T);
-    function FindOne(aID : integer) : T;
+    function FindOne(aID : integer) : T; overload;
+    function FindOne(aFilter : TOrionORMFilter) : T; overload;
     function FindMany(aFilter : TOrionORMFilter) : TObjectList<T>;
     procedure Delete(aID : integer);
   end;

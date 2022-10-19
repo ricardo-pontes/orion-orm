@@ -13,34 +13,34 @@ object Form1: TForm1
   object Button1: TButton
     Position.X = 116.000000000000000000
     Position.Y = 8.000000000000000000
-    TabOrder = 0
+    TabOrder = 1
     Text = 'FindOne'
     OnClick = Button1Click
   end
   object Button2: TButton
-    Position.X = 204.000000000000000000
+    Position.X = 315.000000000000000000
     Position.Y = 8.000000000000000000
-    TabOrder = 2
+    TabOrder = 3
     Text = 'FindMany'
     OnClick = Button2Click
   end
   object Edit1: TEdit
     Touch.InteractiveGestures = [LongTap, DoubleTap]
-    TabOrder = 3
+    TabOrder = 4
     Position.X = 8.000000000000000000
     Position.Y = 8.000000000000000000
   end
   object Button3: TButton
-    Position.X = 292.000000000000000000
+    Position.X = 403.000000000000000000
     Position.Y = 8.000000000000000000
-    TabOrder = 4
+    TabOrder = 5
     Text = 'Save'
     OnClick = Button3Click
   end
   object Button5: TButton
-    Position.X = 380.000000000000000000
+    Position.X = 491.000000000000000000
     Position.Y = 8.000000000000000000
-    TabOrder = 6
+    TabOrder = 7
     Text = 'Delete'
     OnClick = Button5Click
   end
@@ -52,7 +52,7 @@ object Form1: TForm1
     Size.Height = 554.000000000000000000
     Size.PlatformDefault = False
     TabIndex = 0
-    TabOrder = 7
+    TabOrder = 8
     TabPosition = PlatformDefault
     Sizes = (
       638s
@@ -297,8 +297,18 @@ object Form1: TForm1
     Size.Width = 540.000000000000000000
     Size.Height = 528.000000000000000000
     Size.PlatformDefault = False
-    TabOrder = 1
+    TabOrder = 2
     Viewport.Width = 536.000000000000000000
     Viewport.Height = 524.000000000000000000
+  end
+  object Button4: TButton
+    Position.X = 204.000000000000000000
+    Position.Y = 8.000000000000000000
+    Size.Width = 103.000000000000000000
+    Size.Height = 22.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 0
+    Text = 'FindOne w/ Filter'
+    OnClick = Button4Click
   end
 end
