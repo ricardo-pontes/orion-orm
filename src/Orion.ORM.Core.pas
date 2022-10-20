@@ -178,7 +178,7 @@ begin
         tkLString:     RttiProperty.SetValue(Pointer(Result), Dataset.FieldByName(MapperValue.FieldName).AsString);
         tkWString:     RttiProperty.SetValue(Pointer(Result), Dataset.FieldByName(MapperValue.FieldName).AsString);
         tkInt64:       RttiProperty.SetValue(Pointer(Result), Dataset.FieldByName(MapperValue.FieldName).AsLargeInt);
-        tkUString:     RttiProperty.SetValue(Pointer(Result), Dataset.FieldByName(MapperValue.FieldName).AsString);
+        tkUString:     RttiProperty.SetValue(Pointer(Result), Dataset.FieldByName(MapperValue.FieldName).AsAnsiString);
         tkUnknown: ;
         tkSet: ;
         tkClass: begin
@@ -199,7 +199,7 @@ begin
             for lObject in ObjectList do begin
               TObjectList<TObject>(RttiProperty.GetValue(Pointer(Result)).AsObject).Add(lObject);
             end;
-          end;
+          end
         end;
         tkMethod: ;
         tkVariant: ;

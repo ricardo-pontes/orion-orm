@@ -52,6 +52,18 @@ type
 //    function Get
   end;
 
+  TOrionORMMapperManager = class
+  private
+    class var FManagerList : TObjectDictionary<string, TOrionORMMapper>;
+    class var FDefaultInstance : TOrionORMMapperManager;
+    class function GetDefaultInstance : TOrionORMMapperManager;
+  public
+    class constructor Create;
+    class destructor Destroy;
+
+    class procedure Add(aMapperName : string; aMapperValue : TOrionORMMapper);
+    class function Find(aMapperName : string) : TOrionORMMapper;
+  end;
 
 implementation
 
@@ -261,6 +273,43 @@ end;
 function TOrionORMMapper.Values: TList<TOrionORMMapperValue>;
 begin
   Result := FMapperValues;
+end;
+
+{ TOrionORMMapperManager }
+
+class procedure TOrionORMMapperManager.Add(aMapperName: string; aMapperValue: TOrionORMMapper);
+begin
+  GetDefaultInstance;
+  if not FManagerList.ContainsKey(aMapperName) then
+    FManagerList.Add(aMapperName, aMapperValue);
+end;
+
+class constructor TOrionORMMapperManager.Create;
+begin
+  FManagerList := TObjectDictionary<string, TOrionORMMapper>.Create;
+end;
+
+class destructor TOrionORMMapperManager.Destroy;
+begin
+  FManagerList.DisposeOf;
+  if Assigned(FDefaultInstance) then
+    FDefaultInstance.DisposeOf;
+
+end;
+
+class function TOrionORMMapperManager.Find(aMapperName: string): TOrionORMMapper;
+begin
+  GetDefaultInstance;
+  Result := nil;
+  FManagerList.TryGetValue(aMapperName, Result);
+end;
+
+class function TOrionORMMapperManager.GetDefaultInstance: TOrionORMMapperManager;
+begin
+  if not Assigned(FDefaultInstance) then
+    FDefaultInstance := TOrionORMMapperManager.Create;
+
+  Result := FDefaultInstance;
 end;
 
 end.

@@ -10,8 +10,7 @@ uses
   Orion.ORM.Mapper;
 
 type
-  iOrionORMMiddleware = interface;
-
+  iOrionORMPagination = interface;
 
   iOrionORM<T:class, constructor> = interface
     ['{3ADA655C-AF28-4E2A-9127-A533F80D05E4}']
@@ -23,8 +22,12 @@ type
     procedure Delete(aID : integer);
   end;
 
-  iOrionORMMiddleware = interface
+  iOrionORMPagination = interface
     ['{C02957C4-3DC2-444F-BEB7-FBC3F8BBF014}']
+    procedure PageCount(aValue : integer);
+    procedure PageIndex(aValue : integer);
+    procedure PageSize(aValue : integer);
+    function CriteriaResult : string;
   end;
 
   iDataset = interface;

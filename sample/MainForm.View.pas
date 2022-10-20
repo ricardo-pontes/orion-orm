@@ -162,6 +162,7 @@ var
   DBConnection : iDBConnection;
   MapperProdutos : TOrionORMMapper;
   MapperProdutosComposicao : TOrionORMMapper;
+  MapperTeste : TOrionORMMapper;
 begin
   FOrionBindings := TOrionBindings.New;
   FOrionBindings.Use(TOrionBindingsMiddlewaresFMXNative.New);
@@ -205,6 +206,9 @@ begin
   MapperProdutos.Add('VisivelCardapio', 'VISIVEL_CARDAPIO');
   MapperProdutos.Add('VisivelComposicao', 'VISIVEL_COMPOSICAO');
   MapperProdutos.Add('Composicao', MapperProdutosComposicao);
+
+  TOrionORMMapperManager.Add('Produtos', MapperProdutos);
+  TOrionORMMapperManager.Add('ProdutosComposicao', MapperProdutos);
 
   DBConnection := TOrionORMDBConnectionFiredacSQLite.New;
   DBConnection.Configurations('E:\Projetos\Orion-ORM\sample\OrionEats.sqlite3', '', '', '', 0);
