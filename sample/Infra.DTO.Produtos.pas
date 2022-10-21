@@ -6,6 +6,18 @@ uses
   System.Generics.Collections;
 
 type
+  TGrupoProdutos = class
+  private
+    FID: integer;
+    FDescricao: string;
+    FAtivo: Boolean;
+
+  public
+    property ID: integer read FID write FID;
+    property Descricao: string read FDescricao write FDescricao;
+    property Ativo: Boolean read FAtivo write FAtivo;
+  end;
+
   TProdutoComposicaoDTO = class;
 
   TProdutoDTO = class
@@ -21,6 +33,7 @@ type
     FEmbalagem: string;
     FTipoProduto: string;
     FComposicao: TObjectList<TProdutoComposicaoDTO>;
+    FGrupoProdutos: TGrupoProdutos;
   public
     constructor Create;
     destructor Destroy; override;
@@ -36,6 +49,7 @@ type
     property VisivelComposicao : boolean read FVisivelComposicao write FVisivelComposicao;
     property VisivelCardapio : boolean read FVisivelCardapio write FVisivelCardapio;
     property Composicao: TObjectList<TProdutoComposicaoDTO> read FComposicao write FComposicao;
+    property GrupoProdutos: TGrupoProdutos read FGrupoProdutos write FGrupoProdutos;
   end;
 
   TProdutoComposicaoDTO = class
@@ -60,11 +74,13 @@ implementation
 constructor TProdutoDTO.Create;
 begin
   FComposicao := TObjectList<TProdutoComposicaoDTO>.Create;
+  FGrupoProdutos := TGrupoProdutos.Create;
 end;
 
 destructor TProdutoDTO.Destroy;
 begin
   FComposicao.DisposeOf;
+  FGrupoProdutos.DisposeOf;
   inherited;
 end;
 

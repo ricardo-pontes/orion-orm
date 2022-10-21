@@ -119,6 +119,10 @@
         <DCCReference Include="FireDACCommon.dcp"/>
         <DCCReference Include="FireDACIBDriver.dcp"/>
         <DCCReference Include="FireDACSqliteDriver.dcp"/>
+        <DCCReference Include="vcl.dcp"/>
+        <DCCReference Include="fmx.dcp"/>
+        <DCCReference Include="vclFireDAC.dcp"/>
+        <DCCReference Include="fmxFireDAC.dcp"/>
         <DCCReference Include="Orion.ORM.Interfaces.pas"/>
         <DCCReference Include="Orion.ORM.Types.pas"/>
         <DCCReference Include="Orion.ORM.Mapper.pas"/>
@@ -127,6 +131,7 @@
         <DCCReference Include="Orion.ORM.Core.pas"/>
         <DCCReference Include="Orion.ORM.Criteria.pas"/>
         <DCCReference Include="Orion.ORM.DBConnection.FireDAC.Query.pas"/>
+        <DCCReference Include="Orion.ORM.Rtti.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

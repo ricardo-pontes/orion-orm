@@ -34,7 +34,11 @@ requires
   FireDACCommonDriver,
   FireDACCommon,
   FireDACIBDriver,
-  FireDACSqliteDriver;
+  FireDACSqliteDriver,
+  vcl,
+  fmx,
+  vclFireDAC,
+  fmxFireDAC;
 
 contains
   Orion.ORM.Interfaces in 'Orion.ORM.Interfaces.pas',
@@ -44,6 +48,7 @@ contains
   Orion.ORM.DBConnection.FireDAC.SQLite in 'Orion.ORM.DBConnection.FireDAC.SQLite.pas',
   Orion.ORM.Core in 'Orion.ORM.Core.pas',
   Orion.ORM.Criteria in 'Orion.ORM.Criteria.pas',
-  Orion.ORM.DBConnection.FireDAC.Query in 'Orion.ORM.DBConnection.FireDAC.Query.pas';
+  Orion.ORM.DBConnection.FireDAC.Query in 'Orion.ORM.DBConnection.FireDAC.Query.pas',
+  Orion.ORM.Rtti in 'Orion.ORM.Rtti.pas';
 
 end.

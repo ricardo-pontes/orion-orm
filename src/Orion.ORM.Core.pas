@@ -11,7 +11,8 @@ uses
   Orion.ORM.Mapper,
   Orion.ORM.Types,
   Orion.ORM.Criteria,
-  Orion.ORM.Interfaces;
+  Orion.ORM.Interfaces,
+  Orion.ORM.Rtti;
 
 type
   TOrionORMCore<T:class, constructor> = class
@@ -35,6 +36,9 @@ type
     function FormatFilter(aForeignKey : string; aDatasetField : TField; aIsAND : boolean) : string;
     procedure RttiPropertyToDatasetField(RttiProperty: TRttiProperty; aDataObject: T; aDataset : iDataset; aDatasetFieldName : string; aMapper : TOrionORMMapper);
     procedure FillUpdatedRecordLists(Dataset: iDataset; UpdatedRecords: System.Generics.Collections.TDictionary<string, Boolean>);
+  private
+    function GetDatasetFieldName(MapperValue: TOrionORMMapperValue) : string;
+
   public
     constructor Create(aDBConnection : iDBConnection);
     destructor Destroy; override;
@@ -77,6 +81,18 @@ begin
     if FDBConnection.InTransaction and FAutoCommit then
       FDBConnection.RollBack;
   end;
+end;
+
+function TOrionORMCore<T>.GetDatasetFieldName(MapperValue: TOrionORMMapperValue) : string;
+var
+  Strings: TArray<string>;
+begin
+  if MapperValue.FieldName.Contains('.') then begin
+    Strings := MapperValue.FieldName.Split(['.']);
+    Result := Strings[Pred(Length(Strings))];
+  end
+  else
+    Result := MapperValue.FieldName;
 end;
 
 procedure TOrionORMCore<T>.FillUpdatedRecordLists(Dataset: iDataset; UpdatedRecords: System.Generics.Collections.TDictionary<string, Boolean>);
@@ -145,9 +161,12 @@ end;
 procedure TOrionORMCore<T>.DatasetToObject(Dataset: iDataset; var Result: T; aMapper : TOrionORMMapper);
 var
   RttiContext: TRttiContext;
+  RttiContextSplit : TRttiContext;
   RttiType: TRttiType;
+  RttiTypeSplit : TRttiType;
   MapperValue: TOrionORMMapperValue;
   RttiProperty: TRttiProperty;
+  RttiPropertySplit : TRttiProperty;
   Filter : string;
   PrimaryKey : string;
   ForeignKey : string;
@@ -155,6 +174,9 @@ var
   ObjectList : TObjectList<TObject>;
   Constraint : TOrionORMMapperCOnstraint;
   lObject: TObject;
+  lResultEntityPropertyByName : ResultEntityPropertyByName;
+  DatasetFieldName : string;
+  lString: TObject;
 const
   IS_NOT_AND = False;
   IS_AND = True;
@@ -164,25 +186,27 @@ begin
   try
     for MapperValue in aMapper.Values do
     begin
-      RttiProperty := RttiType.GetProperty(MapperValue.PropertyName);
+      lResultEntityPropertyByName := GetEntityPropertyByName(MapperValue.PropertyName, Result);
+      RttiProperty := lResultEntityPropertyByName.&Property;
       if not Assigned(RttiProperty) then
-        raise Exception.Create(Format('Property %s not found.', [MapperValue.PropertyName]));
+        raise Exception.Create(Format('Property %s not found.', [RttiProperty.Name]));
 
+      DatasetFieldName := GetDatasetFieldName(MapperValue);
       case RttiProperty.PropertyType.TypeKind of
-        tkInteger:     RttiProperty.SetValue(Pointer(Result), Dataset.FieldByName(MapperValue.FieldName).AsInteger);
-        tkChar:        RttiProperty.SetValue(Pointer(Result), Dataset.FieldByName(MapperValue.FieldName).AsString);
-        tkEnumeration: RttiProperty.SetValue(Pointer(Result), Dataset.FieldByName(MapperValue.FieldName).AsBoolean);
-        tkFloat:       RttiProperty.SetValue(Pointer(Result), Dataset.FieldByName(MapperValue.FieldName).AsFloat);
-        tkString:      RttiProperty.SetValue(Pointer(Result), Dataset.FieldByName(MapperValue.FieldName).AsString);
-        tkWChar:       RttiProperty.SetValue(Pointer(Result), Dataset.FieldByName(MapperValue.FieldName).AsString);
-        tkLString:     RttiProperty.SetValue(Pointer(Result), Dataset.FieldByName(MapperValue.FieldName).AsString);
-        tkWString:     RttiProperty.SetValue(Pointer(Result), Dataset.FieldByName(MapperValue.FieldName).AsString);
-        tkInt64:       RttiProperty.SetValue(Pointer(Result), Dataset.FieldByName(MapperValue.FieldName).AsLargeInt);
-        tkUString:     RttiProperty.SetValue(Pointer(Result), Dataset.FieldByName(MapperValue.FieldName).AsAnsiString);
+        tkInteger:     RttiProperty.SetValue(Pointer(lResultEntityPropertyByName.Entity), Dataset.FieldByName(DatasetFieldName).AsInteger);
+        tkChar:        RttiProperty.SetValue(Pointer(lResultEntityPropertyByName.Entity), Dataset.FieldByName(DatasetFieldName).AsString);
+        tkEnumeration: RttiProperty.SetValue(Pointer(lResultEntityPropertyByName.Entity), Dataset.FieldByName(DatasetFieldName).AsBoolean);
+        tkFloat:       RttiProperty.SetValue(Pointer(lResultEntityPropertyByName.Entity), Dataset.FieldByName(DatasetFieldName).AsFloat);
+        tkString:      RttiProperty.SetValue(Pointer(lResultEntityPropertyByName.Entity), Dataset.FieldByName(DatasetFieldName).AsString);
+        tkWChar:       RttiProperty.SetValue(Pointer(lResultEntityPropertyByName.Entity), Dataset.FieldByName(DatasetFieldName).AsString);
+        tkLString:     RttiProperty.SetValue(Pointer(lResultEntityPropertyByName.Entity), Dataset.FieldByName(DatasetFieldName).AsString);
+        tkWString:     RttiProperty.SetValue(Pointer(lResultEntityPropertyByName.Entity), Dataset.FieldByName(DatasetFieldName).AsString);
+        tkInt64:       RttiProperty.SetValue(Pointer(lResultEntityPropertyByName.Entity), Dataset.FieldByName(DatasetFieldName).AsLargeInt);
+        tkUString:     RttiProperty.SetValue(Pointer(lResultEntityPropertyByName.Entity), Dataset.FieldByName(DatasetFieldName).AsString);
         tkUnknown: ;
         tkSet: ;
         tkClass: begin
-          if RttiProperty.GetValue(Pointer(Result)).AsObject.ClassName.Contains('TObjectList<') then begin
+          if RttiProperty.GetValue(Pointer(lResultEntityPropertyByName.Entity)).AsObject.ClassName.Contains('TObjectList<') then begin
             ForeignKey := MapperValue.Mapper.GetDatasetFieldName(MapperValue.Mapper.GetFKPropertyName);
             PrimaryKey := aMapper.GetDatasetFieldName(aMapper.GetPKPropertyName);
             Filter := FormatFilter(ForeignKey, Dataset.FieldByName(PrimaryKey), IS_NOT_AND);
@@ -190,14 +214,14 @@ begin
             if Assigned(ObjectList) then
               ObjectList := nil;
 
-            ObjectList := InternalFindMany(Filter, MapperValue.Mapper, TObjectList<TObject>(RttiProperty.GetValue(Pointer(Result)).AsObject));
+            ObjectList := InternalFindMany(Filter, MapperValue.Mapper, TObjectList<TObject>(RttiProperty.GetValue(Pointer(lResultEntityPropertyByName.Entity)).AsObject));
             if not Assigned(ObjectList) then
               Continue;
 
             ObjectList.OwnsObjects := False;
-            TObjectList<TObject>(RttiProperty.GetValue(Pointer(Result)).AsObject).Clear;
+            TObjectList<TObject>(RttiProperty.GetValue(Pointer(lResultEntityPropertyByName.Entity)).AsObject).Clear;
             for lObject in ObjectList do begin
-              TObjectList<TObject>(RttiProperty.GetValue(Pointer(Result)).AsObject).Add(lObject);
+              TObjectList<TObject>(RttiProperty.GetValue(Pointer(lResultEntityPropertyByName.Entity)).AsObject).Add(lObject);
             end;
           end
         end;
@@ -528,6 +552,8 @@ var
   ProviderFlag : TProviderFlag;
   FKValue : string;
   Constraint: TOrionORMMapperConstraint;
+  lResultEntityPropertyByName : ResultEntityPropertyByName;
+  DatasetFieldName : string;
 begin
   FChildRttiProperties.Clear;
   RttiContext := TRttiContext.Create;
@@ -542,11 +568,13 @@ begin
     FKValue := RttiProperty.GetValue(Pointer(aDataObject)).ToString;
 
     for MapperValue in aMapper.Values do begin
-      RttiProperty := RttiType.GetProperty(MapperValue.PropertyName);
+      lResultEntityPropertyByName := GetEntityPropertyByName(MapperValue.PropertyName, aDataObject);
+      RttiProperty := lResultEntityPropertyByName.&Property;
       if not isValidForSave(MapperValue, aDataset, RttiProperty, aMapper) then
         Continue;
 
-      RttiPropertyToDatasetField(RttiProperty, aDataObject, aDataset, MapperValue.FieldName, MapperValue.Mapper);
+      DatasetFieldName := GetDatasetFieldName(MapperValue);
+      RttiPropertyToDatasetField(RttiProperty, aDataObject, aDataset, DatasetFieldName, MapperValue.Mapper);
     end;
     aDataset.Post;
 

@@ -205,7 +205,11 @@ begin
   MapperProdutos.Add('Ativo', 'ATIVO');
   MapperProdutos.Add('VisivelCardapio', 'VISIVEL_CARDAPIO');
   MapperProdutos.Add('VisivelComposicao', 'VISIVEL_COMPOSICAO');
+  MapperProdutos.Add('GrupoProdutos.ID', 'GRUPO_PRODUTOS.GR_PROD_ID');
+  MapperProdutos.Add('GrupoProdutos.Descricao', 'GRUPO_PRODUTOS.GR_PROD_DESCRICAO');
+  MapperProdutos.Add('GrupoProdutos.Ativo', 'GRUPO_PRODUTOS.GR_PROD_ATIVO');
   MapperProdutos.Add('Composicao', MapperProdutosComposicao);
+  MapperProdutos.AddJoin(' LEFT OUTER JOIN GRUPO_PRODUTOS ON (GRUPO_PRODUTOS.GR_PROD_ID = PRODUTOS.ID_GRUPO_PRODUTOS)');
 
   TOrionORMMapperManager.Add('Produtos', MapperProdutos);
   TOrionORMMapperManager.Add('ProdutosComposicao', MapperProdutos);
