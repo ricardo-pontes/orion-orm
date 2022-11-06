@@ -14,6 +14,7 @@ type
   end;
 
   function GetEntityPropertyByName(aEntityPropertyName: string; aEntity : TObject): ResultEntityPropertyByName;
+  function isEmptyProperty(aRttiProperty : TRttiProperty; aEntity : Pointer) : boolean;
 
 implementation
 
@@ -26,14 +27,11 @@ var
   lStrings : TArray<string>;
   I : integer;
   lObject : TObject;
-  IsCompound : boolean;
 begin
-  IsCompound := False;
   lContext := TRttiContext.Create;
   lType := lContext.GetType(aEntity.ClassInfo);
   try
     if aEntityPropertyName.Contains('.') then begin
-      IsCompound := True;
       lStrings := SplitString(aEntityPropertyName, '.');
       for I := 0 to Pred(Length(lStrings)) do begin
         lResult := GetEntityPropertyByName(lStrings[i], aEntity);
@@ -41,7 +39,6 @@ begin
           lObject := lResult.Entity;
           lResult := GetEntityPropertyByName(lStrings[I+1], lObject);
         end;
-
         if lResult.&Property.Name = lStrings[Pred(Length(lStrings))] then begin
           Result.&Property := lResult.&Property;
           Result.Entity := lResult.Entity;
@@ -63,4 +60,29 @@ begin
   end;
 end;
 
+function isEmptyProperty(aRttiProperty : TRttiProperty; aEntity : Pointer) : boolean;
+begin
+  case aRttiProperty.PropertyType.TypeKind of
+    tkUnknown: ;
+    tkInteger: Result := aRttiProperty.GetValue(aEntity).AsInteger <= 0;
+    tkChar, tkString, tkWChar, tkLString, tkWString, tkUString: begin
+      Result := aRttiProperty.GetValue(aEntity).AsString.Trim.IsEmpty;
+    end;
+    tkInt64: Result := aRttiProperty.GetValue(aEntity).AsInt64 <= 0;
+    tkFloat: Result := aRttiProperty.GetValue(aEntity).AsExtended <= 0;
+    tkEnumeration: ;
+    tkSet: ;
+    tkClass: ;
+    tkMethod: ;
+    tkVariant: ;
+    tkArray: ;
+    tkRecord: ;
+    tkInterface: ;
+    tkDynArray: ;
+    tkClassRef: ;
+    tkPointer: ;
+    tkProcedure: ;
+    tkMRecord: ;
+  end;
+end;
 end.

@@ -17,9 +17,11 @@ type
     procedure Mapper(aValue : TOrionORMMapper);
     procedure Save(aDataObject : T);
     function FindOne(aID : integer) : T; overload;
+    function FindOne(aID : string) : T; overload;
     function FindOne(aFilter : TOrionORMFilter) : T; overload;
     function FindMany(aFilter : TOrionORMFilter) : TObjectList<T>;
-    procedure Delete(aID : integer);
+    procedure Delete(aID : integer); overload;
+    procedure Delete(aID : string); overload;
   end;
 
   iOrionORMPagination = interface

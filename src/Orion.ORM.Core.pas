@@ -6,6 +6,7 @@ uses
   System.Generics.Collections,
   System.SysUtils,
   System.Rtti,
+  System.Variants,
   Data.DB,
 
   Orion.ORM.Mapper,
@@ -22,12 +23,13 @@ type
     FChildRttiProperties : TDictionary<TRttiProperty, TOrionORMMapper>;
     FAutoCommit : boolean;
     FOrionCriteria : TOrionORMCriteria<T>;
-    function InternalFindOne(aID : integer; aMapper  : TOrionORMMapper) : T; overload;
+//    function InternalFindOne(aID : integer; aMapper  : TOrionORMMapper) : T; overload;
+    function InternalFindOne(aID : string; aMapper  : TOrionORMMapper) : T; overload;
     function InternalFindOne(aFilter : TOrionORMFilter; aMapper : TOrionORMMapper) : T; overload;
     function InternalFindMany(aFilter : TOrionORMFilter; aMapper  : TOrionORMMapper; aObjectList : TObjectList<TObject> = nil) : TObjectList<TObject>;
     procedure InternalSave(aDataObject: T; aMapper : TOrionORMMapper);
     procedure InternalSaveMany(aObjectList : TObjectList<TObject>; aMapper : TOrionORMMapper; aFKValue : string);
-    procedure InternalDelete(aID : integer);
+    procedure InternalDelete(aID: string);
     function isValidForSave (aMapperValue : TOrionORMMapperValue; aDataset : iDataset; aRttiProperty : TRttiProperty; aMapper : TOrionORMMapper): boolean;
     function GetObjectInstance(aList: TObjectList<TObject>): TObject;
     procedure ExecuteStatement(Statement: TStringBuilder; aDataset : iDataset);
@@ -47,10 +49,11 @@ type
     property DBConnection: iDBConnection read FDBConnection write FDBConnection;
 
     procedure Save(aDataObject : T);
-    function FindOne(aID : integer) : T; overload;
+//    function FindOne(aID : integer) : T; overload;
+    function FindOne(aID : string) : T; overload;
     function FindOne(aFilter : TOrionORMFilter) : T; overload;
     function FindMany(aFilter : TOrionORMFilter) : TObjectList<T>;
-    procedure Delete(aID : integer);
+    procedure Delete(aID : string);
   end;
 
 implementation
@@ -64,7 +67,7 @@ begin
   FOrionCriteria := TOrionORMCriteria<T>.Create;
 end;
 
-procedure TOrionORMCore<T>.Delete(aID : integer);
+procedure TOrionORMCore<T>.Delete(aID : string);
 begin
   try
     FAutoCommit := False;
@@ -78,8 +81,11 @@ begin
     if FDBConnection.InTransaction and FAutoCommit then
       FDBConnection.Commit;
   except on E: Exception do
-    if FDBConnection.InTransaction and FAutoCommit then
-      FDBConnection.RollBack;
+    begin
+      if FDBConnection.InTransaction and FAutoCommit then
+        FDBConnection.RollBack;
+      raise;
+    end;
   end;
 end;
 
@@ -263,19 +269,29 @@ begin
   Result := TObjectList<T>(InternalFindMany(aFilter, FMapper));
 end;
 
+function TOrionORMCore<T>.FindOne(aID: string): T;
+begin
+  Result := InternalFindOne(aID, FMapper);
+end;
+
 function TOrionORMCore<T>.FindOne(aFilter: TOrionORMFilter): T;
 begin
   Result := InternalFindOne(aFilter, FMapper);
 end;
 
-function TOrionORMCore<T>.FindOne(aID : integer) : T;
-begin
-  Result := InternalFindOne(aID, FMapper);
-end;
+//function TOrionORMCore<T>.FindOne(aID : integer) : T;
+//begin
+//  Result := InternalFindOne(aID.ToString, FMapper);
+//end;
 
 function TOrionORMCore<T>.FormatFilter(aForeignKey : string; aDatasetField : TField; aIsAND : boolean) : string;
 begin
-  Result := Format(' %s = %s ', [aForeignKey, aDatasetField.AsString]);
+  Result := Format(' %s = %s ', [aForeignKey, VarToStr(aDatasetField.AsVariant).QuotedString]);
+//  case aDatasetField.FieldKind of
+//    ftString, ftWideString, ftFixedChar, ftFixedWideChar: Result := Format(' %s = %s ', [aForeignKey, aDatasetField.AsString.QuotedString]);
+//    ftSmallint, ftInteger : Result := Format(' %s = %n ', [aForeignKey, aDatasetField.AsInteger]);
+//    ftLargeint: Result := Format(' %s = %n ', [aForeignKey, aDatasetField.AsLargeInt]);
+//  end;
 end;
 
 function TOrionORMCore<T>.GetObjectInstance(aList: TObjectList<TObject>): TObject;
@@ -303,7 +319,7 @@ begin
   Result := lMethodType.Invoke(lMetaClass, []).AsObject;
 end;
 
-procedure TOrionORMCore<T>.InternalDelete(aID: integer);
+procedure TOrionORMCore<T>.InternalDelete(aID: string);
 var
   Statement : TStringBuilder;
   Dataset : iDataset;
@@ -372,6 +388,32 @@ begin
   end;
 end;
 
+function TOrionORMCore<T>.InternalFindOne(aID: string; aMapper: TOrionORMMapper): T;
+var
+  Statement : TStringBuilder;
+  Dataset : iDataset;
+  Filter : string;
+begin
+  if not Assigned(FMapper) then
+    raise Exception.Create('No mapper found.');
+
+  Statement := TStringBuilder.Create;
+  Dataset := FDBConnection.NewDataset;
+  try
+    Filter := aMapper.GetDatasetFieldName(aMapper.GetPKPropertyName) + ' = ' + aID.QuotedString;
+    FOrionCriteria.BuildFindStatement(Statement, Filter, aMapper);
+    ExecuteStatement(Statement, Dataset);
+
+    if Dataset.RecordCount = 0 then
+      Exit;
+
+    Result := T.Create;
+    DatasetToObject(Dataset, Result, aMapper);
+  finally
+    Statement.DisposeOf;
+  end;
+end;
+
 function TOrionORMCore<T>.InternalFindOne(aFilter: TOrionORMFilter; aMapper: TOrionORMMapper): T;
 var
   Statement : TStringBuilder;
@@ -397,31 +439,31 @@ begin
   end;
 end;
 
-function TOrionORMCore<T>.InternalFindOne(aID : integer; aMapper  : TOrionORMMapper) : T;
-var
-  Statement : TStringBuilder;
-  Dataset : iDataset;
-  Filter : string;
-begin
-  if not Assigned(FMapper) then
-    raise Exception.Create('No mapper found.');
-
-  Statement := TStringBuilder.Create;
-  Dataset := FDBConnection.NewDataset;
-  try
-    Filter := aMapper.GetDatasetFieldName(aMapper.GetPKPropertyName) + ' = ' + aID.ToString;
-    FOrionCriteria.BuildFindStatement(Statement, Filter, aMapper);
-    ExecuteStatement(Statement, Dataset);
-
-    if Dataset.RecordCount = 0 then
-      Exit;
-
-    Result := T.Create;
-    DatasetToObject(Dataset, Result, aMapper);
-  finally
-    Statement.DisposeOf;
-  end;
-end;
+//function TOrionORMCore<T>.InternalFindOne(aID : integer; aMapper  : TOrionORMMapper) : T;
+//var
+//  Statement : TStringBuilder;
+//  Dataset : iDataset;
+//  Filter : string;
+//begin
+//  if not Assigned(FMapper) then
+//    raise Exception.Create('No mapper found.');
+//
+//  Statement := TStringBuilder.Create;
+//  Dataset := FDBConnection.NewDataset;
+//  try
+//    Filter := aMapper.GetDatasetFieldName(aMapper.GetPKPropertyName) + ' = ' + aID.ToString;
+//    FOrionCriteria.BuildFindStatement(Statement, Filter, aMapper);
+//    ExecuteStatement(Statement, Dataset);
+//
+//    if Dataset.RecordCount = 0 then
+//      Exit;
+//
+//    Result := T.Create;
+//    DatasetToObject(Dataset, Result, aMapper);
+//  finally
+//    Statement.DisposeOf;
+//  end;
+//end;
 
 procedure TOrionORMCore<T>.InternalSave(aDataObject: T; aMapper : TOrionORMMapper);
 var
@@ -467,7 +509,7 @@ begin
   Statement := TStringBuilder.Create;
   UpdatedRecords := TDictionary<string, boolean>.Create;
   try
-    FOrionCriteria.BuildSaveManyStatement(Statement, aMapper, aFKValue);
+    FOrionCriteria.BuildSaveManyStatement(Statement, aMapper, nil, aFKValue);
     ExecuteStatement(Statement, Dataset);
     FillUpdatedRecordLists(Dataset, UpdatedRecords);
     for lObject in aObjectList do begin
@@ -475,10 +517,10 @@ begin
       RttiType := RttiContext.GetType(lObject.ClassInfo);
       try
         RttiProperty := RttiType.GetProperty(aMapper.GetPKPropertyName);
-        if RttiProperty.GetValue(Pointer(lObject)).AsInteger <= 0 then
+        if isEmptyProperty(RttiProperty, Pointer(lObject)) then
           Dataset.Append
         else begin
-          Dataset.Locate(aMapper.GetDatasetFieldName(aMapper.GetPKPropertyName), RttiProperty.GetValue(Pointer(lObject)).AsInteger, []);
+          Dataset.Locate(aMapper.GetDatasetFieldName(aMapper.GetPKPropertyName), RttiProperty.GetValue(Pointer(lObject)).AsVariant, []);
           Dataset.Edit;
         end;
 
@@ -496,14 +538,21 @@ begin
           if not isValidForSave(MapperValue, Dataset, RttiProperty, aMapper) then
             Continue;
 
-          if aMapper.IsFK(RttiProperty.Name) then
-            RttiProperty.SetValue(Pointer(lObject), aFKValue.ToInteger);
+          if aMapper.IsFK(RttiProperty.Name) then begin
+            case RttiProperty.PropertyType.TypeKind of
+              tkInteger: RttiProperty.SetValue(Pointer(lObject), aFKValue.ToInteger);
+              tkInt64 : RttiProperty.SetValue(Pointer(lObject), aFKValue.ToInt64);
+              tkChar, tkString, tkWChar, tkLString, tkWString, tkUString: begin
+                RttiProperty.SetValue(Pointer(lObject), aFKValue)
+              end;
+            end;
+          end;
 
           RttiPropertyToDatasetField(RttiProperty, lObject, Dataset, DatasetFieldName, aMapper);
         end;
         Dataset.Post;
         RttiProperty := RttiType.GetProperty(aMapper.GetPKPropertyName);
-        RttiProperty.SetValue(Pointer(lObject), Dataset.FieldByName(aMapper.GetDatasetFieldName(RttiProperty.Name)).AsInteger);
+        RttiProperty.SetValue(Pointer(lObject), TValue.FromVariant(Dataset.FieldByName(aMapper.GetDatasetFieldName(RttiProperty.Name)).AsVariant));
       finally
         RttiType.DisposeOf;
       end;
@@ -579,7 +628,16 @@ begin
     aDataset.Post;
 
     RttiProperty := RttiType.GetProperty(aMapper.GetPKPropertyName);
-    RttiProperty.SetValue(Pointer(aDataObject), aDataset.FieldByName(aMapper.GetDatasetFieldName(RttiProperty.Name)).AsInteger);
+    case RttiProperty.PropertyType.TypeKind of
+        tkInteger: RttiProperty.SetValue(Pointer(aDataObject), aDataset.FieldByName(aMapper.GetDatasetFieldName(RttiProperty.Name)).AsInteger);
+
+        tkChar, tkString, tkWChar, tkLString, tkWString, tkUString: begin
+          RttiProperty.SetValue(Pointer(aDataObject), aDataset.FieldByName(aMapper.GetDatasetFieldName(RttiProperty.Name)).AsString);
+        end;
+
+        tkInt64: RttiProperty.SetValue(Pointer(aDataObject), aDataset.FieldByName(aMapper.GetDatasetFieldName(RttiProperty.Name)).AsLargeInt);
+    end;
+//    RttiProperty.SetValue(Pointer(aDataObject), aDataset.FieldByName(aMapper.GetDatasetFieldName(RttiProperty.Name)).AsInteger);
     FKValue := RttiProperty.GetValue(Pointer(aDataObject)).ToString;
 
     if FChildRttiProperties.Count > 0 then begin
@@ -606,8 +664,11 @@ begin
     if FDBConnection.InTransaction and FAutoCommit then
       FDBConnection.Commit;
   except on E: Exception do
-    if FDBConnection.InTransaction and FAutoCommit then
-      FDBConnection.RollBack;
+    begin
+      if FDBConnection.InTransaction and FAutoCommit then
+        FDBConnection.RollBack;
+      raise;
+    end;
   end;
 end;
 

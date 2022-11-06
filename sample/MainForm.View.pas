@@ -99,7 +99,10 @@ begin
   if Assigned(FProduto) then
     FProduto.DisposeOf;
 
-  FProduto := FOrionORM.FindOne(Edit1.Text.ToInteger);
+  FProduto := FOrionORM.FindOne(Edit1.Text);
+  if not Assigned(FProduto) then
+    FProduto := TProdutoDTO.Create;
+
   FOrionBindings.Entity(FProduto);
   FOrionBindings.BindToView;
   Memo1.Text := FProduto.ToJSONString(True);
@@ -144,7 +147,7 @@ end;
 
 procedure TForm1.Button5Click(Sender: TObject);
 begin
-  FOrionORM.Delete(Edit1.Text.ToInteger);
+  FOrionORM.Delete(Edit1.Text);
 end;
 
 procedure TForm1.Button6Click(Sender: TObject);
@@ -162,7 +165,6 @@ var
   DBConnection : iDBConnection;
   MapperProdutos : TOrionORMMapper;
   MapperProdutosComposicao : TOrionORMMapper;
-  MapperTeste : TOrionORMMapper;
 begin
   FOrionBindings := TOrionBindings.New;
   FOrionBindings.Use(TOrionBindingsMiddlewaresFMXNative.New);
@@ -187,7 +189,7 @@ begin
 
   MapperProdutosComposicao := TOrionORMMapper.Create;
   MapperProdutosComposicao.TableName := 'PRODUTOS_COMPOSICAO';
-  MapperProdutosComposicao.Add('ID', 'PROD_COMP_ID', [PK, AutoInc]);
+  MapperProdutosComposicao.Add('ID', 'PROD_COMP_ID', [PK]);
   MapperProdutosComposicao.Add('IDProduto', 'PROD_COMP_ID_PRODUTO', [FK]);
   MapperProdutosComposicao.Add('Descricao', 'PROD_COMP_DESCRICAO');
   MapperProdutosComposicao.Add('Embalagem', 'PROD_COMP_EMBALAGEM');
@@ -195,7 +197,7 @@ begin
 
   MapperProdutos := TOrionORMMapper.Create;
   MapperProdutos.TableName := 'PRODUTOS';
-  MapperProdutos.Add('ID', 'ID', [PK, AutoInc]);
+  MapperProdutos.Add('ID', 'ID', [PK]);
   MapperProdutos.Add('Descricao', 'DESCRICAO');
   MapperProdutos.Add('DescricaoDetalhada', 'DESCRICAO_DETALHADA');
   MapperProdutos.Add('Embalagem', 'EMBALAGEM');

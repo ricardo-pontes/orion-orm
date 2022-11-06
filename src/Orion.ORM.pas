@@ -4,6 +4,7 @@ interface
 
 uses
   System.Generics.Collections,
+  System.SysUtils,
   Orion.ORM.Interfaces,
   Orion.ORM.Types,
   Orion.ORM.Mapper,
@@ -22,9 +23,11 @@ type
     procedure Mapper(aValue : TOrionORMMapper);
     procedure Save(aDataObject : T);
     function FindOne(aID : integer) : T; overload;
+    function FindOne(aID : string) : T; overload;
     function FindOne(aFilter : TOrionORMFilter) : T; overload;
     function FindMany(aFilter : TOrionORMFilter) : TObjectList<T>;
-    procedure Delete(aID : integer);
+    procedure Delete(aID : integer); overload;
+    procedure Delete(aID : string); overload;
   end;
 
 implementation
@@ -38,6 +41,11 @@ begin
 end;
 
 procedure TOrionORM<T>.Delete(aID : integer);
+begin
+  FCore.Delete(aID.ToString);
+end;
+
+procedure TOrionORM<T>.Delete(aID: string);
 begin
   FCore.Delete(aID);
 end;
@@ -53,6 +61,11 @@ begin
   Result := FCore.FindMany(aFilter);
 end;
 
+function TOrionORM<T>.FindOne(aID: string): T;
+begin
+  Result := FCore.FindOne(aID);
+end;
+
 function TOrionORM<T>.FindOne(aFilter: TOrionORMFilter): T;
 begin
   Result := FCore.FindOne(aFilter);
@@ -60,7 +73,7 @@ end;
 
 function TOrionORM<T>.FindOne(aID : integer): T;
 begin
-  Result := FCore.FindOne(aID);
+  Result := FCore.FindOne(aID.ToString);
 end;
 
 procedure TOrionORM<T>.Mapper(aValue: TOrionORMMapper);

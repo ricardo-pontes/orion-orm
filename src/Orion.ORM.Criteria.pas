@@ -5,7 +5,8 @@ interface
 uses
   System.SysUtils,
   Orion.ORM.Types,
-  Orion.ORM.Mapper;
+  Orion.ORM.Mapper,
+  System.Rtti;
 
 type
   TOrionORMCriteria<T : class, constructor> = class
@@ -14,22 +15,22 @@ type
   public
     procedure BuildFindStatement(Statement: TStringBuilder; aFilter: TOrionORMFilter; aMapper : TOrionORMMapper);
     procedure BuildSaveStatement(aStatement: TStringBuilder; aDataObject : T; aMapper: TOrionORMMapper);
-    procedure BuildSaveManyStatement(aStatement: TStringBuilder; aMapper: TOrionORMMapper; aFKValue : string);
-    procedure BuildDeleteStatement(Statement: TStringBuilder; aID: Integer; aMapper : TOrionORMMapper; aPropertyName : string);
+    procedure BuildSaveManyStatement(aStatement: TStringBuilder; aMapper : TOrionORMMapper; aRttiProperty: TRttiProperty; aFKValue : string);
+    procedure BuildDeleteStatement(Statement: TStringBuilder; aID: string; aMapper : TOrionORMMapper; aPropertyName : string);
   end;
 
 implementation
 
 uses
-  System.Rtti;
+  Orion.ORM.Rtti;
 
 { TOrionORMCriteria }
 
-procedure TOrionORMCriteria<T>.BuildDeleteStatement(Statement: TStringBuilder; aID: Integer; aMapper: TOrionORMMapper;
+procedure TOrionORMCriteria<T>.BuildDeleteStatement(Statement: TStringBuilder; aID: string; aMapper: TOrionORMMapper;
   aPropertyName: string);
 begin
   Statement.AppendFormat('delete from %s ', [aMapper.TableName]);
-  Statement.AppendFormat(' where %s = %s', [aMapper.GetDatasetFieldName(aPropertyName), aID.ToString]);
+  Statement.AppendFormat(' where %s = %s', [aMapper.GetDatasetFieldName(aPropertyName), aID.QuotedString]);
 end;
 
 procedure TOrionORMCriteria<T>.BuildFindStatement(Statement: TStringBuilder; aFilter: TOrionORMFilter;
@@ -57,7 +58,7 @@ begin
     Statement.Append(' where ' + aFilter.Filter);
 end;
 
-procedure TOrionORMCriteria<T>.BuildSaveManyStatement(aStatement: TStringBuilder; aMapper: TOrionORMMapper;
+procedure TOrionORMCriteria<T>.BuildSaveManyStatement(aStatement: TStringBuilder;aMapper : TOrionORMMapper; aRttiProperty: TRttiProperty;
   aFKValue: string);
 var
   Where : string;
@@ -65,7 +66,15 @@ begin
   Where := '';
   aStatement.Append('select * ');
   aStatement.AppendFormat(' from %s',  [aMapper.TableName]);
-  Where := Format(' where %s = %s', [aMapper.GetDatasetFieldName(aMapper.GetFKPropertyName), aFKValue]);
+//  case aRttiProperty.PropertyType.TypeKind of
+//    tkInteger, tkInt64: begin
+//      Where := Format(' where %s = %s', [aMapper.GetDatasetFieldName(aMapper.GetFKPropertyName), aFKValue])
+//    end;
+//    tkChar, tkString, tkWChar, tkLString, tkWString, tkUString: begin
+//      Where := Format(' where %s = %s', [aMapper.GetDatasetFieldName(aMapper.GetFKPropertyName), aFKValue.QuotedString]);
+//    end;
+//  end;
+  Where := Format(' where %s = %s', [aMapper.GetDatasetFieldName(aMapper.GetFKPropertyName), aFKValue.QuotedString]);
   if not Where.IsEmpty then
     aStatement.Append(Where);
 end;
@@ -86,11 +95,20 @@ begin
     aStatement.Append('select * ');
     aStatement.AppendFormat(' from %s', [aMapper.TableName]);
     RttiProperty := RttiType.GetProperty(aMapper.GetPKPropertyName);
-
-    if RttiProperty.GetValue(Pointer(aDataObject)).AsInteger = 0 then
+    if isEmptyProperty(RttiProperty, Pointer(aDataObject)) then
       Where := ' where 1 <> 1'
-    else
-      Where := ' where ' + aMapper.GetDatasetFieldName(RttiProperty.Name) + ' = ' + RttiProperty.GetValue(Pointer(aDataObject)).ToString;
+    else begin
+      case RttiProperty.PropertyType.TypeKind of
+        tkInteger: Where := ' where ' + aMapper.GetDatasetFieldName(RttiProperty.Name) + ' = ' + RttiProperty.GetValue(Pointer(aDataObject)).ToString;
+
+        tkChar, tkString, tkWChar, tkLString, tkWString, tkUString: begin
+          Where := ' where ' + aMapper.GetDatasetFieldName(RttiProperty.Name) + ' = ' + RttiProperty.GetValue(Pointer(aDataObject)).ToString.QuotedString;
+        end;
+
+        tkInt64: Where := ' where ' + aMapper.GetDatasetFieldName(RttiProperty.Name) + ' = ' + RttiProperty.GetValue(Pointer(aDataObject)).ToString;
+      end;
+    end;
+
 
     aStatement.Append(Where);
   finally
