@@ -42,7 +42,8 @@ type
     procedure StartTransaction;
     procedure Commit;
     procedure RollBack;
-    function Component : TComponent;
+    function Component : TComponent; overload;
+    procedure Component(aValue : TComponent); overload;
     function NewDataset : iDataset;
     function IsConnected : boolean; overload;
     function InTransaction : boolean;

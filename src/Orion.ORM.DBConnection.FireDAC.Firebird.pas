@@ -1,4 +1,4 @@
-unit Orion.ORM.DBConnection.FireDAC.SQLite;
+unit Orion.ORM.DBConnection.FireDAC.Firebird;
 
 interface
 
@@ -19,7 +19,7 @@ uses
   FireDAC.DatS,
   FireDAC.DApt.Intf,
   FireDAC.DApt,
-  FireDAC.Phys.SQLiteDef,
+  FireDAC.Phys.FBDef,
 //  {$IFDEF FMX}
     FireDAC.FMXUI.Wait,
 //  {$ENDIF}
@@ -33,16 +33,16 @@ uses
 //  {$ENDIF}
   FireDAC.Comp.UI,
   FireDAC.Phys.IBBase,
-  FireDAC.Phys.SQLite,
+  FireDAC.Phys.FB,
   Data.DB,
   FireDAC.Comp.DataSet,
   FireDAC.Comp.Client,
   System.Classes;
 type
-  TOrionORMDBConnectionFiredacSQLite = class(TInterfacedObject, iDBConnection, iDBConnectionConfigurations)
+  TOrionORMDBConnectionFiredacFirebird = class(TInterfacedObject, iDBConnection, iDBConnectionConfigurations)
   private
     FDBConnection : TFDConnection;
-    FDriverLink : TFDPhysSQLiteDriverLink;
+    FDriverLink : TFDPhysFBDriverLink;
   public
     constructor Create;
     destructor Destroy; override;
@@ -77,18 +77,18 @@ uses
   System.SysUtils,
   Orion.ORM.DBConnection.FireDAC.Query;
 
-{ TOrionORMDBConnectionFiredacSQLite }
-procedure TOrionORMDBConnectionFiredacSQLite.Commit;
+{ TOrionORMDBConnectionFiredacFirebird }
+procedure TOrionORMDBConnectionFiredacFirebird.Commit;
 begin
   FDBConnection.Commit;
 end;
 
-function TOrionORMDBConnectionFiredacSQLite.Component: TComponent;
+function TOrionORMDBConnectionFiredacFirebird.Component: TComponent;
 begin
   Result := FDBConnection;
 end;
 
-procedure TOrionORMDBConnectionFiredacSQLite.Configurations(aPath, aUsername, aPassword, aServer: string; aPort: integer);
+procedure TOrionORMDBConnectionFiredacFirebird.Configurations(aPath, aUsername, aPassword, aServer: string; aPort: integer);
 begin
   FDBConnection.Params.Database := aPath;
   FDBConnection.Params.UserName := aUserName;
@@ -97,31 +97,30 @@ begin
     FDBConnection.Params.AddPair('Port', aPort.ToString);
 end;
 
-procedure TOrionORMDBConnectionFiredacSQLite.Component(aValue: TComponent);
+procedure TOrionORMDBConnectionFiredacFirebird.Component(aValue: TComponent);
 begin
   FDBConnection.Assign(aValue);
 end;
 
-function TOrionORMDBConnectionFiredacSQLite.Configurations: iDBConnectionConfigurations;
+function TOrionORMDBConnectionFiredacFirebird.Configurations: iDBConnectionConfigurations;
 begin
   Result := Self;
 end;
 
-procedure TOrionORMDBConnectionFiredacSQLite.Connected(aValue: boolean);
+procedure TOrionORMDBConnectionFiredacFirebird.Connected(aValue: boolean);
 begin
   FDBConnection.Connected := aValue;
 end;
 
-constructor TOrionORMDBConnectionFiredacSQLite.Create;
+constructor TOrionORMDBConnectionFiredacFirebird.Create;
 begin
   FDBConnection := TFDConnection.Create(nil);
   FDBConnection.UpdateOptions.AutoCommitUpdates := False;
-  FDBConnection.Params.DriverID := 'SQLite';
-  FDBConnection.Params.AddPair('LockingMode', 'Normal');
-  FDriverLink := TFDPhysSQLiteDriverLink.Create(nil);
+  FDBConnection.Params.DriverID := 'FB';
+  FDriverLink := TFDPhysFBDriverLink.Create(nil);
 end;
 
-destructor TOrionORMDBConnectionFiredacSQLite.Destroy;
+destructor TOrionORMDBConnectionFiredacFirebird.Destroy;
 begin
   if FDBConnection.InTransaction then
     FDBConnection.Rollback;
@@ -131,47 +130,47 @@ begin
   inherited;
 end;
 
-function TOrionORMDBConnectionFiredacSQLite.IsConnected: boolean;
+function TOrionORMDBConnectionFiredacFirebird.IsConnected: boolean;
 begin
   Result := FDBConnection.COnnected;
 end;
 
-function TOrionORMDBConnectionFiredacSQLite.InTransaction: boolean;
+function TOrionORMDBConnectionFiredacFirebird.InTransaction: boolean;
 begin
   Result := FDBConnection.InTransaction;
 end;
 
-class function TOrionORMDBConnectionFiredacSQLite.New: iDBConnection;
+class function TOrionORMDBConnectionFiredacFirebird.New: iDBConnection;
 begin
   Result := Self.Create;
 end;
 
-function TOrionORMDBConnectionFiredacSQLite.NewDataset: iDataset;
+function TOrionORMDBConnectionFiredacFirebird.NewDataset: iDataset;
 begin
   Result := TFiredacQuery.New(Self);
 end;
 
-function TOrionORMDBConnectionFiredacSQLite.Password: string;
+function TOrionORMDBConnectionFiredacFirebird.Password: string;
 begin
   Result := FDBConnection.Params.Password;
 end;
 
-procedure TOrionORMDBConnectionFiredacSQLite.Password(aValue: string);
+procedure TOrionORMDBConnectionFiredacFirebird.Password(aValue: string);
 begin
   FDBConnection.Params.Password := aValue;
 end;
 
-procedure TOrionORMDBConnectionFiredacSQLite.Path(aValue: string);
+procedure TOrionORMDBConnectionFiredacFirebird.Path(aValue: string);
 begin
   FDBConnection.Params.Database := aValue;
 end;
 
-function TOrionORMDBConnectionFiredacSQLite.Path: string;
+function TOrionORMDBConnectionFiredacFirebird.Path: string;
 begin
   Result := FDBConnection.Params.Database;
 end;
 
-procedure TOrionORMDBConnectionFiredacSQLite.Port(aValue: integer);
+procedure TOrionORMDBConnectionFiredacFirebird.Port(aValue: integer);
 begin
   if FDBConnection.Params.IndexOf('Port') > 0 then
     FDBConnection.Params.Values['Port'] := aValue.ToString
@@ -179,19 +178,19 @@ begin
     FDBConnection.Params.AddPair('Port', aValue.ToString);
 end;
 
-function TOrionORMDBConnectionFiredacSQLite.Port: integer;
+function TOrionORMDBConnectionFiredacFirebird.Port: integer;
 begin
   Result := 0;
   if FDBConnection.Params.IndexOf('Port') > 0 then
     Result := FDBConnection.Params.Values['Port'].ToInteger;
 end;
 
-procedure TOrionORMDBConnectionFiredacSQLite.RollBack;
+procedure TOrionORMDBConnectionFiredacFirebird.RollBack;
 begin
   FDBConnection.Rollback;
 end;
 
-procedure TOrionORMDBConnectionFiredacSQLite.Server(aValue: string);
+procedure TOrionORMDBConnectionFiredacFirebird.Server(aValue: string);
 begin
   if FDBConnection.Params.IndexOf('Server') > 0 then
     FDBConnection.Params.Values['Server'] := aValue
@@ -199,23 +198,23 @@ begin
     FDBConnection.Params.AddPair('Server', aValue);
 end;
 
-function TOrionORMDBConnectionFiredacSQLite.Server: string;
+function TOrionORMDBConnectionFiredacFirebird.Server: string;
 begin
   if FDBConnection.Params.IndexOf('Server') > 0 then
     Result := FDBConnection.Params.Values['Server'];
 end;
 
-procedure TOrionORMDBConnectionFiredacSQLite.StartTransaction;
+procedure TOrionORMDBConnectionFiredacFirebird.StartTransaction;
 begin
   FDBConnection.StartTransaction;
 end;
 
-function TOrionORMDBConnectionFiredacSQLite.Username: string;
+function TOrionORMDBConnectionFiredacFirebird.Username: string;
 begin
   Result := FDBConnection.Params.UserName;
 end;
 
-procedure TOrionORMDBConnectionFiredacSQLite.Username(aValue: string);
+procedure TOrionORMDBConnectionFiredacFirebird.Username(aValue: string);
 begin
   FDBConnection.Params.UserName := aValue;
 end;
