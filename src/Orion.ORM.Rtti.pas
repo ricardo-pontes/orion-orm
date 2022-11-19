@@ -30,11 +30,16 @@ var
 begin
   lContext := TRttiContext.Create;
   lType := lContext.GetType(aEntity.ClassInfo);
+  lResult.Entity := nil;
+  lResult.&Property := nil;
   try
     if aEntityPropertyName.Contains('.') then begin
       lStrings := SplitString(aEntityPropertyName, '.');
       for I := 0 to Pred(Length(lStrings)) do begin
-        lResult := GetEntityPropertyByName(lStrings[i], aEntity);
+        if Assigned(lResult.Entity) then
+          lResult := GetEntityPropertyByName(lStrings[i+1], lResult.Entity)
+        else
+          lResult := GetEntityPropertyByName(lStrings[i], aEntity);
         if lResult.&Property.PropertyType.TypeKind = tkClass then begin
           lObject := lResult.Entity;
           lResult := GetEntityPropertyByName(lStrings[I+1], lObject);

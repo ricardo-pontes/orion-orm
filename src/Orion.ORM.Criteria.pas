@@ -56,6 +56,9 @@ begin
 
   if not aFilter.Filter.IsEmpty then
     Statement.Append(' where ' + aFilter.Filter);
+
+  if not aMapper.OrderBy.IsEmpty then
+    Statement.Append(' order by ' + aMapper.OrderBy);
 end;
 
 procedure TOrionORMCriteria<T>.BuildSaveManyStatement(aStatement: TStringBuilder;aMapper : TOrionORMMapper; aRttiProperty: TRttiProperty;

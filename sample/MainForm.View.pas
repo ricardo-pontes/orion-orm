@@ -194,6 +194,7 @@ begin
   MapperProdutosComposicao.Add('Descricao', 'PROD_COMP_DESCRICAO');
   MapperProdutosComposicao.Add('Embalagem', 'PROD_COMP_EMBALAGEM');
   MapperProdutosComposicao.Add('Quantidade', 'PROD_COMP_QUANTIDADE');
+  MapperProdutosComposicao.OrderBy := 'PROD_COMP_DESCRICAO DESC';
 
   MapperProdutos := TOrionORMMapper.Create;
   MapperProdutos.TableName := 'PRODUTOS';

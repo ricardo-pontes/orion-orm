@@ -25,6 +25,7 @@ type
     FPrimaryKey : TList<string>;
     FForeignKeys : TList<string>;
     FTableName: string;
+    FOrderBy : string;
     FIsChild: boolean;
     procedure AddMapper(aPropertyName, aFieldName : string; aConstraints : TOrionORMMapperConstraints; aMapper : TOrionORMMapper);
   public
@@ -38,6 +39,7 @@ type
     procedure Add(aPropertyName : string; aOrionORMMapper : TOrionORMMapper); overload;
     procedure Add(aPropertyName : string; aOrionORMMapper : TOrionORMMapper; aConstraints : TOrionORMMapperConstraints); overload;
     procedure AddJoin(aValue : string);
+    property OrderBy: string read FOrderBy write FOrderBy;
     function Values : TList<TOrionORMMapperValue>;
     function PK : TList<string>;
     function FK(aPropertyName : string) : TList<string>;

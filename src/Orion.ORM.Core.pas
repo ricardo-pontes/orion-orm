@@ -504,13 +504,17 @@ var
   DatasetFieldName : string;
   UpdatedRecordsKey: string;
   UpdateRecordPair : TPair<string, boolean>;
+  isEmptyDataset : boolean;
+  EntityProperty : ResultEntityPropertyByName;
 begin
+  isEmptyDataset := False;
   Dataset := FDBConnection.NewDataset;
   Statement := TStringBuilder.Create;
   UpdatedRecords := TDictionary<string, boolean>.Create;
   try
     FOrionCriteria.BuildSaveManyStatement(Statement, aMapper, nil, aFKValue);
     ExecuteStatement(Statement, Dataset);
+    isEmptyDataset := DataSet.RecordCount = 0;
     FillUpdatedRecordLists(Dataset, UpdatedRecords);
     for lObject in aObjectList do begin
       RttiContext := TRttiContext.Create;
@@ -519,20 +523,27 @@ begin
         RttiProperty := RttiType.GetProperty(aMapper.GetPKPropertyName);
         if isEmptyProperty(RttiProperty, Pointer(lObject)) then
           Dataset.Append
-        else begin
+        else if not isEmptyDataset then begin
           Dataset.Locate(aMapper.GetDatasetFieldName(aMapper.GetPKPropertyName), RttiProperty.GetValue(Pointer(lObject)).AsVariant, []);
           Dataset.Edit;
-        end;
+        end
+        else
+          Dataset.Append;
 
-        for RttiProperty in RttiType.GetProperties do begin
-          DatasetFieldName := aMapper.GetDatasetFieldName(RttiProperty.Name);
+        for MapperValue in aMapper.Values do begin
+          EntityProperty := GetEntityPropertyByName(MapperValue.PropertyName, lObject);
+          RttiProperty := EntityProperty.&Property;
+          DatasetFieldName := aMapper.GetDatasetFieldName(MapperValue.PropertyName);
+
           if DatasetFieldName.IsEmpty then
             Continue;
 
-          if aMapper.IsPK(RttiProperty.Name) and UpdatedRecords.ContainsKey(Dataset.FieldByName(DatasetFieldName).Value) then begin
-            UpdateRecordPair := UpdatedRecords.ExtractPair(Dataset.FieldByName(DatasetFieldName).Value);
-            UpdateRecordPair.Value := True;
-            UpdatedRecords.AddOrSetValue(Dataset.FieldByName(DatasetFieldName).Value, True);
+          if not isEmptyDataset then begin
+            if aMapper.IsPK(RttiProperty.Name) and UpdatedRecords.ContainsKey(Dataset.FieldByName(DatasetFieldName).Value) then begin
+              UpdateRecordPair := UpdatedRecords.ExtractPair(Dataset.FieldByName(DatasetFieldName).Value);
+              UpdateRecordPair.Value := True;
+              UpdatedRecords.AddOrSetValue(Dataset.FieldByName(DatasetFieldName).Value, True);
+            end;
           end;
 
           if not isValidForSave(MapperValue, Dataset, RttiProperty, aMapper) then
@@ -540,19 +551,26 @@ begin
 
           if aMapper.IsFK(RttiProperty.Name) then begin
             case RttiProperty.PropertyType.TypeKind of
-              tkInteger: RttiProperty.SetValue(Pointer(lObject), aFKValue.ToInteger);
-              tkInt64 : RttiProperty.SetValue(Pointer(lObject), aFKValue.ToInt64);
+              tkInteger: RttiProperty.SetValue(Pointer(EntityProperty.Entity), aFKValue.ToInteger);
+              tkInt64 : RttiProperty.SetValue(Pointer(EntityProperty.Entity), aFKValue.ToInt64);
               tkChar, tkString, tkWChar, tkLString, tkWString, tkUString: begin
-                RttiProperty.SetValue(Pointer(lObject), aFKValue)
+                RttiProperty.SetValue(Pointer(EntityProperty.Entity), aFKValue)
               end;
             end;
           end;
-
-          RttiPropertyToDatasetField(RttiProperty, lObject, Dataset, DatasetFieldName, aMapper);
+          RttiPropertyToDatasetField(RttiProperty, EntityProperty.Entity, Dataset, DatasetFieldName, aMapper);
         end;
         Dataset.Post;
-        RttiProperty := RttiType.GetProperty(aMapper.GetPKPropertyName);
-        RttiProperty.SetValue(Pointer(lObject), TValue.FromVariant(Dataset.FieldByName(aMapper.GetDatasetFieldName(RttiProperty.Name)).AsVariant));
+
+        EntityProperty := GetEntityPropertyByName(aMapper.GetPKPropertyName, lObject);
+        RttiProperty := EntityProperty.&Property;
+        case RttiProperty.PropertyType.TypeKind of
+          tkInteger: RttiProperty.SetValue(Pointer(EntityProperty.Entity), Dataset.FieldByName(aMapper.GetDatasetFieldName(RttiProperty.Name)).AsInteger);
+          tkInt64 : RttiProperty.SetValue(Pointer(EntityProperty.Entity), Dataset.FieldByName(aMapper.GetDatasetFieldName(RttiProperty.Name)).AsLargeInt);
+          tkChar, tkString, tkWChar, tkLString, tkWString, tkUString: begin
+            RttiProperty.SetValue(Pointer(EntityProperty.Entity), Dataset.FieldByName(aMapper.GetDatasetFieldName(RttiProperty.Name)).AsString)
+          end;
+        end;
       finally
         RttiType.DisposeOf;
       end;
@@ -622,23 +640,32 @@ begin
       if not isValidForSave(MapperValue, aDataset, RttiProperty, aMapper) then
         Continue;
 
-      DatasetFieldName := GetDatasetFieldName(MapperValue);
-      RttiPropertyToDatasetField(RttiProperty, aDataObject, aDataset, DatasetFieldName, MapperValue.Mapper);
+      DatasetFieldName := aMapper.GetDatasetFieldName(MapperValue.PropertyName);
+      RttiPropertyToDatasetField(RttiProperty, lResultEntityPropertyByName.Entity, aDataset, DatasetFieldName, MapperValue.Mapper);
     end;
     aDataset.Post;
 
-    RttiProperty := RttiType.GetProperty(aMapper.GetPKPropertyName);
+    lResultEntityPropertyByName := GetEntityPropertyByName(aMapper.GetPKPropertyName, aDataObject);
+    RttiProperty := lResultEntityPropertyByName.&Property;
     case RttiProperty.PropertyType.TypeKind of
-        tkInteger: RttiProperty.SetValue(Pointer(aDataObject), aDataset.FieldByName(aMapper.GetDatasetFieldName(RttiProperty.Name)).AsInteger);
-
-        tkChar, tkString, tkWChar, tkLString, tkWString, tkUString: begin
-          RttiProperty.SetValue(Pointer(aDataObject), aDataset.FieldByName(aMapper.GetDatasetFieldName(RttiProperty.Name)).AsString);
-        end;
-
-        tkInt64: RttiProperty.SetValue(Pointer(aDataObject), aDataset.FieldByName(aMapper.GetDatasetFieldName(RttiProperty.Name)).AsLargeInt);
+      tkInteger: RttiProperty.SetValue(Pointer(lResultEntityPropertyByName.Entity), aDataset.FieldByName(aMapper.GetDatasetFieldName(RttiProperty.Name)).AsInteger);
+      tkInt64 : RttiProperty.SetValue(Pointer(lResultEntityPropertyByName.Entity), aDataset.FieldByName(aMapper.GetDatasetFieldName(RttiProperty.Name)).AsLargeInt);
+      tkChar, tkString, tkWChar, tkLString, tkWString, tkUString: begin
+        RttiProperty.SetValue(Pointer(lResultEntityPropertyByName.Entity), aDataset.FieldByName(aMapper.GetDatasetFieldName(RttiProperty.Name)).AsString)
+      end;
     end;
+//    RttiProperty := RttiType.GetProperty(aMapper.GetPKPropertyName);
+//    case RttiProperty.PropertyType.TypeKind of
+//        tkInteger: RttiProperty.SetValue(Pointer(aDataObject), aDataset.FieldByName(aMapper.GetDatasetFieldName(RttiProperty.Name)).AsInteger);
+//
+//        tkChar, tkString, tkWChar, tkLString, tkWString, tkUString: begin
+//          RttiProperty.SetValue(Pointer(aDataObject), aDataset.FieldByName(aMapper.GetDatasetFieldName(RttiProperty.Name)).AsString);
+//        end;
+//
+//        tkInt64: RttiProperty.SetValue(Pointer(aDataObject), aDataset.FieldByName(aMapper.GetDatasetFieldName(RttiProperty.Name)).AsLargeInt);
+//    end;
 //    RttiProperty.SetValue(Pointer(aDataObject), aDataset.FieldByName(aMapper.GetDatasetFieldName(RttiProperty.Name)).AsInteger);
-    FKValue := RttiProperty.GetValue(Pointer(aDataObject)).ToString;
+    FKValue := lResultEntityPropertyByName.&Property.GetValue(Pointer(lResultEntityPropertyByName.Entity)).ToString;
 
     if FChildRttiProperties.Count > 0 then begin
       for RttiProperty in FChildRttiProperties.Keys do begin
