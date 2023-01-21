@@ -23,6 +23,7 @@ type
     FChildRttiProperties : TDictionary<TRttiProperty, TOrionORMMapper>;
     FAutoCommit : boolean;
     FOrionCriteria : TOrionORMCriteria<T>;
+    FPagination : iOrionORMPagination;
 //    function InternalFindOne(aID : integer; aMapper  : TOrionORMMapper) : T; overload;
     function InternalFindOne(aID : string; aMapper  : TOrionORMMapper) : T; overload;
     function InternalFindOne(aFilter : TOrionORMFilter; aMapper : TOrionORMMapper) : T; overload;
@@ -42,7 +43,8 @@ type
     function GetDatasetFieldName(MapperValue: TOrionORMMapperValue) : string;
 
   public
-    constructor Create(aDBConnection : iDBConnection);
+    constructor Create(aDBConnection : iDBConnection); overload;
+    constructor Create(aDBConnection : iDBConnection; aPagination : iOrionORMPagination); overload;
     destructor Destroy; override;
 
     property Mapper: TOrionORMMapper read FMapper write FMapper;
@@ -54,6 +56,7 @@ type
     function FindOne(aFilter : TOrionORMFilter) : T; overload;
     function FindMany(aFilter : TOrionORMFilter) : TObjectList<T>;
     procedure Delete(aID : string);
+    function Pagination : iOrionORMPagination;
   end;
 
 implementation
@@ -139,8 +142,12 @@ begin
     tkUString:aDataset.FieldByName(aDatasetFieldName).AsString := RttiProperty.GetValue(Pointer(aDataObject)).AsString;
     tkFloat:
       begin
-        if RttiProperty.PropertyType.Name.Contains('TDate') then
-          aDataset.FieldByName(aDatasetFieldName).AsDateTime := RttiProperty.GetValue(Pointer(aDataObject)).AsExtended
+        if RttiProperty.PropertyType.Name.Contains('TDate') then begin
+          if RttiProperty.GetValue(Pointer(aDataObject)).AsExtended = 0 then
+            aDataset.FieldByName(aDatasetFieldName).Value := Null
+          else
+            aDataset.FieldByName(aDatasetFieldName).AsDateTime := RttiProperty.GetValue(Pointer(aDataObject)).AsExtended
+        end
         else
           aDataset.FieldByName(aDatasetFieldName).AsExtended := RttiProperty.GetValue(Pointer(aDataObject)).AsExtended;
       end;
@@ -162,6 +169,14 @@ begin
     tkProcedure: ;
     tkMRecord: ;
   end;
+end;
+
+constructor TOrionORMCore<T>.Create(aDBConnection: iDBConnection; aPagination: iOrionORMPagination);
+begin
+  FDBConnection := aDBConnection;
+  FChildRttiProperties := TDictionary<TRttiProperty, TOrionORMMapper>.Create;
+  FOrionCriteria := TOrionORMCriteria<T>.Create;
+  FPagination := aPagination;
 end;
 
 procedure TOrionORMCore<T>.DatasetToObject(Dataset: iDataset; var Result: T; aMapper : TOrionORMMapper);
@@ -358,6 +373,10 @@ begin
   Dataset := FDBConnection.NewDataset;
   try
     FOrionCriteria.BuildFindStatement(Statement, aFilter, aMapper);
+
+    if Assigned(FPagination) and not Assigned(aObjectList) then
+      Statement.Append(FPagination.CriteriaResult);
+
     ExecuteStatement(Statement, Dataset);
 
     if Dataset.RecordCount = 0 then
@@ -604,7 +623,7 @@ begin
     Exit;
   end;
 
-  if aMapper.isAutoInc(aRttiProperty.Name) then begin
+  if aMapper.isAutoInc(aMapperValue.PropertyName) then begin
     Result := False;
     Exit;
   end;
@@ -675,6 +694,11 @@ begin
   finally
     RttiType.DisposeOf;
   end;
+end;
+
+function TOrionORMCore<T>.Pagination: iOrionORMPagination;
+begin
+  Result := FPagination;
 end;
 
 procedure TOrionORMCore<T>.Save(aDataObject: T);

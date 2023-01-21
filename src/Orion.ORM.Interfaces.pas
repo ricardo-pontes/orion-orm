@@ -22,6 +22,7 @@ type
     function FindMany(aFilter : TOrionORMFilter) : TObjectList<T>;
     procedure Delete(aID : integer); overload;
     procedure Delete(aID : string); overload;
+    function Pagination : iOrionORMPagination;
   end;
 
   iOrionORMPagination = interface
@@ -77,6 +78,7 @@ type
     function FieldExist(aFieldName : string) : boolean;
     function Fields : TFields;
     procedure Statement(aValue : string);
+    procedure Close;
     procedure Open;
     procedure Append;
     procedure Edit;

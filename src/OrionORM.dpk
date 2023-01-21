@@ -50,6 +50,7 @@ contains
   Orion.ORM.Criteria in 'Orion.ORM.Criteria.pas',
   Orion.ORM.DBConnection.FireDAC.Query in 'Orion.ORM.DBConnection.FireDAC.Query.pas',
   Orion.ORM.Rtti in 'Orion.ORM.Rtti.pas',
-  Orion.ORM.DBConnection.FireDAC.Firebird in 'Orion.ORM.DBConnection.FireDAC.Firebird.pas';
+  Orion.ORM.DBConnection.FireDAC.Firebird in 'Orion.ORM.DBConnection.FireDAC.Firebird.pas',
+  Orion.ORM.Pagination.Firebird in 'Orion.ORM.Pagination.Firebird.pas';
 
 end.

@@ -15,10 +15,13 @@ type
   private
     FCore : TOrionORMCore<T>;
     FDBConnection : iDBConnection;
+    FPagination : iOrionORMPagination;
   public
-    constructor Create(aDBConnection : iDBConnection);
+    constructor Create(aDBConnection : iDBConnection); overload;
+    constructor Create(aDBConnection : iDBConnection; aPagination : iOrionORMPagination); overload;
     destructor Destroy; override;
-    class function New(aDBConnection : iDBConnection) : iOrionORM<T>;
+    class function New(aDBConnection : iDBConnection) : iOrionORM<T>; overload;
+    class function New(aDBConnection : iDBConnection; aPagination : iOrionORMPagination) : iOrionORM<T>; overload;
 
     procedure Mapper(aValue : TOrionORMMapper);
     procedure Save(aDataObject : T);
@@ -28,6 +31,7 @@ type
     function FindMany(aFilter : TOrionORMFilter) : TObjectList<T>;
     procedure Delete(aID : integer); overload;
     procedure Delete(aID : string); overload;
+    function Pagination : iOrionORMPagination;
   end;
 
 implementation
@@ -43,6 +47,11 @@ end;
 procedure TOrionORM<T>.Delete(aID : integer);
 begin
   FCore.Delete(aID.ToString);
+end;
+
+constructor TOrionORM<T>.Create(aDBConnection: iDBConnection; aPagination: iOrionORMPagination);
+begin
+
 end;
 
 procedure TOrionORM<T>.Delete(aID: string);
@@ -81,9 +90,19 @@ begin
   FCore.Mapper := aValue;
 end;
 
+class function TOrionORM<T>.New(aDBConnection: iDBConnection; aPagination: iOrionORMPagination): iOrionORM<T>;
+begin
+  Result := Self.Create(aDBConnection, aPagination);
+end;
+
 class function TOrionORM<T>.New(aDBConnection : iDBConnection): iOrionORM<T>;
 begin
   Result := Self.Create(aDBConnection);
+end;
+
+function TOrionORM<T>.Pagination: iOrionORMPagination;
+begin
+
 end;
 
 procedure TOrionORM<T>.Save(aDataObject: T);

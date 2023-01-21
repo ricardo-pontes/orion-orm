@@ -52,6 +52,7 @@ type
     function FieldExist(aFieldName : string) : boolean;
     function Fields : TFields;
     procedure Statement(aValue : string);
+    procedure Close;
     procedure Open;
     procedure Append;
     procedure Edit;
@@ -71,6 +72,11 @@ implementation
 procedure TFiredacQuery.Append;
 begin
   FDBQuery.Append;
+end;
+
+procedure TFiredacQuery.Close;
+begin
+  FDBQuery.Close;
 end;
 
 procedure TFiredacQuery.Conexao(aValue: iDBConnection);
