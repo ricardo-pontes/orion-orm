@@ -44,8 +44,8 @@ begin
     lTo := FPageSize;
   end
   else if FPageIndex > 0 then begin
-    Rows := (FPageIndex - FPageSize) + 1;
-    lTo := ((Rows + FPageSize) - 1);
+    Rows := (FPageIndex * FPageSize) + 1;
+    lTo := (Rows + FPageSize) -1;
   end;
 
   Result := Format(' ROWS %d TO %d', [Rows, lTo]);

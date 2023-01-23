@@ -51,7 +51,8 @@ end;
 
 constructor TOrionORM<T>.Create(aDBConnection: iDBConnection; aPagination: iOrionORMPagination);
 begin
-
+  FDBConnection := aDBConnection;
+  FCore := TOrionORMCore<T>.Create(aDBConnection, aPagination);
 end;
 
 procedure TOrionORM<T>.Delete(aID: string);
@@ -102,7 +103,7 @@ end;
 
 function TOrionORM<T>.Pagination: iOrionORMPagination;
 begin
-
+  Result := FCore.Pagination;
 end;
 
 procedure TOrionORM<T>.Save(aDataObject: T);

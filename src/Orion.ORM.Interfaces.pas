@@ -27,7 +27,7 @@ type
 
   iOrionORMPagination = interface
     ['{C02957C4-3DC2-444F-BEB7-FBC3F8BBF014}']
-    procedure PageCount(aValue : integer);
+//    procedure PageCount(aValue : integer);
     procedure PageIndex(aValue : integer);
     procedure PageSize(aValue : integer);
     function CriteriaResult : string;
