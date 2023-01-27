@@ -46,7 +46,7 @@ FOrionORM.Mapper(Mapper);
 ```
 Agora o ORM está apto para fazer as leituras/escritas no banco de dados.
 
-###Busca dos dados
+### Busca dos dados
 Para buscar apenas um registro no banco de dados, basta usar o comando FindOne
 ```
 Pessoa := FOrionORM.FindOne(1);
