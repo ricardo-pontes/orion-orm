@@ -51,3 +51,14 @@ Para buscar apenas um registro no banco de dados, basta usar o comando FindOne
 ```
 Pessoa := FOrionORM.FindOne(1);
 ```
+O método FindOne por padrão recebe valores do tipo inteiro, mas também tem a opção de receber filtros personalizados de acordo com a sua necessidade, caso o atributo chave seja de um tipo diferente bastando apenas utilizar o record TOrionORMFilter
+```
+  var Filter : TOrionORMFilter;
+  Filter := Format('NCONTROLE = %s', [aNControle.QuotedString]);
+  Pessoa := FOrionORM.FindOne(Filter);
+```
+ Para buscar uma coleção de registros no banco de dados, basta utilizar o comando FindMany
+```
+  Pessoas := FOrionORM.FindMany(Format('PES_NOME LIKE ', ['ric']));
+```  
+
