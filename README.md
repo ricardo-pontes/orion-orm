@@ -61,4 +61,13 @@ O método FindOne por padrão recebe valores do tipo inteiro, mas também tem a 
 ```
   Pessoas := FOrionORM.FindMany(Format('PES_NOME LIKE ', ['ric']));
 ```  
-
+### Salvar os dados
+Para salvar no banco de dados, basta apenas utilizar o método Save
+```
+FOrionORM.Save(Pessoa);
+```
+### Deletar dados
+Para deletar dados, basta utilizar o método Delete
+```
+FOrionORM.Delete(1);
+```  
