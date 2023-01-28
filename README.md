@@ -7,7 +7,7 @@ ORM simples para realizar operações de leitura/escrita através de linhas de c
 
 <b>Paginação dos dados</b> Suporte a paginação dos dados.
 
-<b>Drivers de conexão interfaceados</b> A conexão com o banco é configurada através da interface IDBConnection, tornando possível a utilização de qualquer driver que você esteja familiarizado (atualmente, apenas o driver FireDAC tem uma classe implementada, utilizando o banco de dados SQLite).
+<b>Drivers de conexão interfaceados</b> A conexão com o banco é configurada através da interface IDBConnection, tornando possível a utilização de qualquer driver que você esteja familiarizado (atualmente, apenas o driver FireDAC tem classes implementadas, podendo trabalhar com os bancos de dados SQLite e Firebird).
 
 ## Instalação
 
