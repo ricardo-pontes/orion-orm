@@ -70,4 +70,10 @@ FOrionORM.Save(Pessoa);
 Para deletar dados, basta utilizar o método Delete
 ```
 FOrionORM.Delete(1);
-```  
+``` 
+Também é possível passar filtro personalizado para deletar
+```
+var Filter : TOrionORMFilter;
+Filter := Format('NCONTROLE = %s', [aNControle.QuotedString]);
+Pessoa := FOrionORM.Delete(Filter);
+```
