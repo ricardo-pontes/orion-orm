@@ -75,5 +75,5 @@ Também é possível passar filtro personalizado para deletar
 ```
 var Filter : TOrionORMFilter;
 Filter := Format('NCONTROLE = %s', [aNControle.QuotedString]);
-Pessoa := FOrionORM.Delete(Filter);
+FOrionORM.Delete(Filter);
 ```
