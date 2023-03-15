@@ -133,7 +133,6 @@
         <DCCReference Include="Orion.ORM.DBConnection.FireDAC.Query.pas"/>
         <DCCReference Include="Orion.ORM.Rtti.pas"/>
         <DCCReference Include="Orion.ORM.DBConnection.FireDAC.Firebird.pas"/>
-        <DCCReference Include="Orion.ORM.Pagination.Firebird.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

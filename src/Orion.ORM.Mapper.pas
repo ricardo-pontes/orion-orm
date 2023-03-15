@@ -4,7 +4,8 @@ interface
 
 uses
   Orion.ORM.Types,
-  System.Generics.Collections;
+  System.Generics.Collections,
+  System.SysUtils;
 
 type
   TOrionORMMapper = class;
@@ -15,6 +16,8 @@ type
     Constraints : TOrionORMMapperConstraints;
     Middlewares : array of TOrionORMMiddleware;
     Mapper : TOrionORMMapper;
+  public
+    function GetFieldName : string;
   end;
 
   TOrionORMMapper = class
@@ -154,7 +157,7 @@ begin
     if not (MapperValue.PropertyName = aPropertyName) then
       Continue;
 
-    Result := MapperValue.FieldName;
+    Result := MapperValue.GetFieldName;
     Break;
   end;
 end;
@@ -312,6 +315,19 @@ begin
     FDefaultInstance := TOrionORMMapperManager.Create;
 
   Result := FDefaultInstance;
+end;
+
+{ TOrionORMMapperValue }
+
+function TOrionORMMapperValue.GetFieldName: string;
+begin
+  if not FieldName.Contains('.') then begin
+    Result := FieldName;
+    Exit;
+  end;
+
+  var Strings := FieldName.Split(['.']);
+  Result := Strings[Pred(Length(Strings))];
 end;
 
 end.

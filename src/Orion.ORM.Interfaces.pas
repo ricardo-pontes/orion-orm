@@ -89,6 +89,8 @@ type
     procedure First;
     function Locate(const AKeyFields: string; const AKeyValues: Variant; AOptions: TLocateOptions = []): Boolean;
     function Eof : boolean;
+    procedure CachedUpdates(aValue : boolean);
+    function ApplyUpdates(aValue : integer) : integer;
   end;
 
 implementation

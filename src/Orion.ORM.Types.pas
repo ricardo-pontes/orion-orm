@@ -8,7 +8,7 @@ uses
 
 type
 
-  TOrionORMMapperConstraint = (PK, FK, AutoInc, ReadOnly);
+  TOrionORMMapperConstraint = (PK, FK, AutoInc, ReadOnly, NullIfEmpty);
   TOrionORMMapperConstraints = set of TOrionORMMapperConstraint;
 
   TOrionORMMiddleware = procedure of object;
