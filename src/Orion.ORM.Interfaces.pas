@@ -22,12 +22,11 @@ type
     function FindMany(aFilter : TOrionORMFilter) : TObjectList<T>;
     procedure Delete(aID : integer); overload;
     procedure Delete(aID : string); overload;
-    function Pagination : iOrionORMPagination;
   end;
 
   iOrionORMPagination = interface
     ['{C02957C4-3DC2-444F-BEB7-FBC3F8BBF014}']
-//    procedure PageCount(aValue : integer);
+    procedure PageCount(aValue : integer);
     procedure PageIndex(aValue : integer);
     procedure PageSize(aValue : integer);
     function CriteriaResult : string;
@@ -79,6 +78,8 @@ type
     function Fields : TFields;
     procedure Statement(aValue : string);
     procedure Close;
+    procedure CachedUpdates(aValue : boolean);
+    function ApplyUpdates(aMaxErrors : integer = -1) : integer;
     procedure Open;
     procedure Append;
     procedure Edit;
@@ -89,8 +90,6 @@ type
     procedure First;
     function Locate(const AKeyFields: string; const AKeyValues: Variant; AOptions: TLocateOptions = []): Boolean;
     function Eof : boolean;
-    procedure CachedUpdates(aValue : boolean);
-    function ApplyUpdates(aValue : integer) : integer;
   end;
 
 implementation

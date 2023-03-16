@@ -53,6 +53,8 @@ type
     function Fields : TFields;
     procedure Statement(aValue : string);
     procedure Close;
+    procedure CachedUpdates(aValue : boolean);
+    function ApplyUpdates(aMaxErrors : integer = -1) : integer;
     procedure Open;
     procedure Append;
     procedure Edit;
@@ -64,8 +66,6 @@ type
     function Locate(const AKeyFields: string; const AKeyValues: Variant; AOptions: TLocateOptions = []): Boolean;
     function Dataset : TDataset;
     function Eof : boolean;
-    procedure CachedUpdates(aValue : boolean);
-    function ApplyUpdates(aValue : integer) : integer;
   end;
 
 implementation
@@ -76,9 +76,9 @@ begin
   FDBQuery.Append;
 end;
 
-function TFiredacQuery.ApplyUpdates(aValue: integer): integer;
+function TFiredacQuery.ApplyUpdates(aMaxErrors: integer): integer;
 begin
-  Result := FDBQuery.ApplyUpdates(aValue);
+  Result := FDBQuery.ApplyUpdates(aMaxErrors);
 end;
 
 procedure TFiredacQuery.CachedUpdates(aValue: boolean);
