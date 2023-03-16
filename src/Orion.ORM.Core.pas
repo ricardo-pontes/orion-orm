@@ -71,7 +71,8 @@ procedure TOrionORMCore<T>.Delete(aID : string);
 begin
   try
     FAutoCommit := False;
-    if not FDBConnection.InTransaction then begin
+    if not FDBConnection.InTransaction then
+    begin
       FDBConnection.StartTransaction;
       FAutoCommit := True;
     end;
